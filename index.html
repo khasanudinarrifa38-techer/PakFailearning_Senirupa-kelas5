@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Labirin Co-Op 7 Pemain</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #fff; margin: 0; padding: 20px; text-align: center; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .status-bar { display: flex; justify-content: space-around; background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; }
+    .role-selection { background: #334155; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .btn { background: #3b82f6; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 6px; cursor: pointer; font-size: 16px; }
+    .btn:hover { background: #2563eb; }
+    
+    /* Layout Canvas Game */
+    #maze-canvas { background: #000; border: 4px solid #38bdf8; border-radius: 8px; margin-top: 10px; max-width: 100%; }
+    
+    /* Modal Soal Kuis */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+    .modal-content { background: #1e293b; padding: 25px; border-radius: 10px; max-width: 500px; width: 90%; text-align: left; }
+    .opt-btn { display: block; width: 100%; padding: 10px; margin: 8px 0; background: #475569; color: white; border: none; border-radius: 5px; cursor: pointer; text-align: left; }
+    .opt-btn:hover { background: #64748b; }
+  </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Labirin Co-Op 7 Pemain</h1>
+    
+    <div class="status-bar">
+      <div>Total Poin Tim: <span id="team-score" style="color: #4ade80;">0</span></div>
+      <div>Peran Anda: <span id="user-role" style="color: #facc15;">Belum Dipilih</span></div>
+    </div>
+
+    <!-- Pilih Peran -->
+    <div id="role-box" class="role-selection">
+      <h3>Pilih Peran Pemain:</h3>
+      <button class="btn" onclick="selectRole('Master')">1x Maze Master (Pemandu)</button>
+      <button class="btn" onclick="selectRole('Explorer')">6x Explorer (Pemain Lapangan)</button>
+    </div>
+
+    <!-- Canvas Labirin -->
+    <canvas id="maze-canvas" width="500" height="500"></canvas>
+  </div>
+
+  <!-- Modal Rintangan Soal -->
+  <div id="quiz-modal" class="modal">
+    <div class="modal-content">
+      <h3 id="question-title">Rintangan Gerbang!</h3>
+      <p id="question-text">Soal akan tampil di sini...</p>
+      <div id="options-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // 1. ISI DENGAN KODE KONFIGURASI FIREBASE ANDA
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF6NkxsXBTX44ZyZdL3qT8PqKG9A1KJ1c",
+		authDomain: "labirin-ilmu.firebaseapp.com",
+		databaseURL: "https://labirin-ilmu-default-rtdb.firebaseio.com",
+		projectId: "labirin-ilmu",
+		storageBucket: "labirin-ilmu.firebasestorage.app",
+		messagingSenderId: "201793480627",
+		appId: "1:201793480627:web:cc2e5c3c22eeb1f3bd4dc6"
+
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 2. Database 50 Soal Rintangan
+    const quizDatabase = [
+      { q: "1. Urutan angka berikutnya: 2, 4, 8, 16, ...?", o: ["24", "32", "64", "20"], a: 1 },
+      { q: "2. Jika 5 kucing menangkap 5 tikus dalam 5 menit, berapa menit yang dibutuhkan 100 kucing untuk menangkap 100 tikus?", o: ["100 menit", "50 menit", "5 menit", "1 menit"], a: 2 },
+      { q: "3. Berapa hasil dari 15 + (6 × 4) - 10?", o: ["29", "74", "39", "19"], a: 0 },
+      { q: "4. Manakah bilangan prima antara 20 dan 30?", o: ["21", "23", "25", "27"], a: 1 },
+      { q: "5. Tali dipotong 2 bagian. Bagian pertama 2/3 total. Jika bagian pendek 4m, berapa panjang total?", o: ["8m", "12m", "16m", "10m"], a: 1 },
+      { q: "6. Jika A=1, B=2, C=3, berapa A + B + C + D?", o: ["6", "10", "8", "7"], a: 1 },
+      { q: "7. Berapa 15% dari 200?", o: ["20", "25", "30", "35"], a: 2 },
+      { q: "8. Jam 03.00 membentuk sudut terkecil sebesar...?", o: ["45°", "60°", "90°", "120°"], a: 2 },
+      { q: "9. Akar kuadrat dari 144 adalah...?", o: ["10", "11", "12", "14"], a: 2 },
+      { q: "10. (50 × 2) / (10 - 5) = ...?", o: ["10", "20", "25", "15"], a: 1 },
+      { q: "11. Tag HTML untuk membuat baris baru adalah...?", o: ["<lb>", "<br>", "<break>", "<newline>"], a: 1 },
+      { q: "12. Properti CSS untuk warna latar belakang adalah...?", o: ["color", "bg-color", "background-color", "canvas-color"], a: 2 },
+      { q: "13. Kata kunci JS untuk variabel konstan adalah...?", o: ["var", "let", "const", "static"], a: 2 },
+      { q: "14. Protokol komunikasi real-time dua arah di web adalah...?", o: ["HTTP", "FTP", "WebSocket", "SMTP"], a: 2 },
+      { q: "15. Kepanjangan dari JSON adalah...?", o: ["JavaScript Object Notation", "Java System Option", "JavaScript Online Node", "Java Structure"], a: 0 },
+      { q: "16. Bahasa yang berjalan native di browser adalah...?", o: ["Python", "C++", "JavaScript", "Java"], a: 2 },
+      { q: "17. Simbol ID Selector pada CSS adalah...?", o: [".", "#", "*", "&"], a: 1 },
+      { q: "18. Metode array JS untuk menambah elemen di akhir adalah...?", o: ["push()", "pop()", "shift()", "unshift()"], a: 0 },
+      { q: "19. HTTP Status Code 404 berarti...?", o: ["Server Error", "Unauthorized", "Not Found", "OK"], a: 2 },
+      { q: "20. Elemen HTML5 untuk menggambar grafik secara dinamik adalah...?", o: ["<svg>", "<canvas>", "<graphics>", "<draw>"], a: 1 },
+      { q: "21. Planet yang dikenal sebagai Planet Merah adalah...?", o: ["Venus", "Mars", "Yupiter", "Saturnus"], a: 1 },
+      { q: "22. Gas paling mendominasi di atmosfer Bumi adalah...?", o: ["Oksigen", "Karbondioksida", "Nitrogen", "Hidrogen"], a: 2 },
+      { q: "23. Jumlah jantung pada seekor gurita adalah...?", o: ["1", "2", "3", "4"], a: 2 },
+      { q: "24. Unsur kimia dengan simbol 'Au' adalah...?", o: ["Perak", "Emas", "Aluminium", "Tembaga"], a: 1 },
+      { q: "25. Perubahan wujud gas menjadi cair disebut...?", o: ["Mencair", "Mengembun", "Menyublim", "Membeku"], a: 1 },
+      { q: "26. Hewan mamalia bertelur asal Australia adalah...?", o: ["Kanguru", "Koala", "Platipus", "Wallaby"], a: 2 },
+      { q: "27. Kecepatan cahaya di ruang hampa adalah...?", o: ["300.000 km/s", "150.000 km/s", "3.000 km/s", "1.000.000 km/s"], a: 0 },
+      { q: "28. Alat mengukur tekanan udara adalah...?", o: ["Termometer", "Barometer", "Hygrometer", "Anemometer"], a: 1 },
+      { q: "29. Benua terkecil di dunia adalah...?", o: ["Eropa", "Antartika", "Australia", "Asia"], a: 2 },
+      { q: "30. Satuan internasional daya listrik adalah...?", o: ["Volt", "Ampere", "Watt", "Ohm"], a: 2 },
+      { q: "31. Struktur data LIFO (Last In First Out) adalah...?", o: ["Queue", "Stack", "Tree", "Graph"], a: 1 },
+      { q: "32. Pencarian yang membagi dua ruang pencarian adalah...?", o: ["Linear Search", "Binary Search", "Bubble Sort", "DFS"], a: 1 },
+      { q: "33. Struktur data FIFO (First In First Out) adalah...?", o: ["Stack", "Queue", "Array", "Heap"], a: 1 },
+      { q: "34. Yang BUKAN algoritma sorting adalah...?", o: ["Quick Sort", "Merge Sort", "Dijkstra", "Insertion Sort"], a: 2 },
+      { q: "35. Pertemuan harian singkat tim metode Agile disebut...?", o: ["Sprint", "Daily Standup", "Retrospective", "Review"], a: 1 },
+      { q: "36. Singkatan dari API adalah...?", o: ["Application Programming Interface", "Automated Program Integration", "App Private Instruction", "Advanced Process Interaction"], a: 0 },
+      { q: "37. Area peta yang belum terlihat dalam game disebut...?", o: ["Weather", "Fog of War", "Dark Zone", "Blind Area"], a: 1 },
+      { q: "38. Huruf 'A' pada RGBA bermakna...?", o: ["Array", "Alpha (Transparansi)", "Auto", "Alignment"], a: 1 },
+      { q: "39. Warna yang berhadapan di roda warna disebut...?", o: ["Monokromatik", "Analog", "Komplementer", "Triadik"], a: 2 },
+      { q: "40. Singkatan dari UX adalah...?", o: ["User Extension", "User Experience", "Universal Execution", "Unit Exploration"], a: 1 },
+      { q: "41. Rasio layar Widescreen modern adalah...?", o: ["4:3", "16:9", "1:1", "21:9"], a: 1 },
+      { q: "42. Format gambar web animasi kompresi tinggi adalah...?", o: ["JPEG", "WEBP", "BMP", "TIFF"], a: 1 },
+      { q: "43. Sakelar & Lampu: Nyalakan 1 sebentar lalu matikan, nyalakan 2, lalu masuk. Cara ini untuk...?", o: ["Mengecek sakelar hangat/nyala", "Mengecek konsleting", "Menghemat listrik", "Mereset lampu"], a: 0 },
+      { q: "44. Jika hari ini Rabu, 100 hari lagi adalah hari...?", o: ["Kamis", "Jumat", "Sabtu", "Minggu"], a: 0 },
+      { q: "45. Ayah 4x umur anak. 20 thn lagi jadi 2x. Umur anak sekarang...?", o: ["5 thn", "10 thn", "15 thn", "20 thn"], a: 1 },
+      { q: "46. Mana yang tidak cocok: Apel, Jeruk, Pisang, Wortel?", o: ["Apel", "Jeruk", "Pisang", "Wortel"], a: 3 },
+      { q: "47. Berapa huruf 'A' di ejaan angka 1-100 bahasa Indonesia?", o: ["0", "10", "50", "100"], a: 0 },
+      { q: "48. Nilai desimal dari biner 1010 adalah...?", o: ["8", "10", "12", "14"], a: 1 },
+      { q: "49. Penulis novel Harry Potter adalah...?", o: ["J.K. Rowling", "Tolkien", "George Martin", "Stephen King"], a: 0 },
+      { q: "50. Ibu kota negara Indonesia saat ini adalah...?", o: ["Surabaya", "Bandung", "Nusantara / Jakarta", "Medan"], a: 2 }
+    ];
+
+    let currentRole = '';
+    let playerPos = { x: 1, y: 1 };
+    let currentScore = 0;
+
+    // Sinkronisasi Poin Real-time dari Firebase
+    db.ref('game/score').on('value', (snapshot) => {
+      currentScore = snapshot.val() || 0;
+      document.getElementById('team-score').innerText = currentScore;
+    });
+
+    function selectRole(role) {
+      currentRole = role;
+      document.getElementById('user-role').innerText = role;
+      document.getElementById('role-box').style.display = 'none';
+      initGame();
+    }
+
+    function initGame() {
+      const canvas = document.getElementById('maze-canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Gambar labirin sederhana
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Mode Maze Master: Terang semua; Mode Explorer: Ada efek kabut (Fog of War)
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 0, 500, 500);
+
+        // Gambar Pemain
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(playerPos.x * 25 + 12, playerPos.y * 25 + 12, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Picu Rintangan Kuis secara acak saat bergerak
+        if (Math.random() < 0.03) {
+          triggerQuiz();
+        }
+      }
+
+      // Kontrol Pergerakan Keyboard
+      window.addEventListener('keydown', (e) => {
+        if (currentRole !== 'Explorer') return; // Hanya Explorer yang bergerak
+        if (e.key === 'ArrowUp') playerPos.y = Math.max(0, playerPos.y - 1);
+        if (e.key === 'ArrowDown') playerPos.y = Math.min(19, playerPos.y + 1);
+        if (e.key === 'ArrowLeft') playerPos.x = Math.max(0, playerPos.x - 1);
+        if (e.key === 'ArrowRight') playerPos.x = Math.min(19, playerPos.x + 1);
+        draw();
+      });
+
+      draw();
+    }
+
+    // Logika Kuis
+    function triggerQuiz() {
+      const randomIdx = Math.floor(Math.random() * quizDatabase.length);
+      const q = quizDatabase[randomIdx];
+      
+      document.getElementById('question-text').innerText = q.q;
+      const opts = document.getElementById('options-container');
+      opts.innerHTML = '';
+
+      q.o.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn';
+        btn.innerText = opt;
+        btn.onclick = () => submitAnswer(idx, q.a);
+        opts.appendChild(btn);
+      });
+
+      document.getElementById('quiz-modal').style.display = 'flex';
+    }
+
+    function submitAnswer(selected, correct) {
+      if (selected === correct) {
+        currentScore += 100;
+        alert("Jawaban Benar! (+100 Poin)");
+      } else {
+        currentScore -= 25;
+        alert("Jawaban Salah! (-25 Poin)");
+      }
+      
+      // Simpan Poin Baru ke Firebase agar ter-update di 7 HP
+      db.ref('game/score').set(currentScore);
+      document.getElementById('quiz-modal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
