@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Labirin 6 Pemain Solo</title>
+  <title>Game Labirin 6 Pemain Solo (vs AI Bot)</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #fff; margin: 0; padding: 20px; text-align: center; }
     .container { max-width: 900px; margin: 0 auto; }
     
-    /* Papan Skor 6 Pemain */
     .scoreboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .score-card { background: #334155; padding: 10px; border-radius: 6px; font-size: 13px; text-align: left; border-left: 5px solid #ccc; }
     .score-card.p1 { border-color: #ef4444; }
@@ -25,103 +24,77 @@
     .role-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
     .btn { background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
     .btn:hover:not(:disabled) { opacity: 0.9; }
-    .btn:disabled { background: #64748b; cursor: not-allowed; opacity: 0.6; }
-    
-    .btn-p1 { background: #ef4444; }
-    .btn-p2 { background: #3b82f6; }
-    .btn-p3 { background: #22c55e; }
-    .btn-p4 { background: #eab308; color: #000; }
-    .btn-p5 { background: #a855f7; }
-    .btn-p6 { background: #ec4899; }
+    .btn-start { background: #22c55e; font-size: 16px; padding: 12px 24px; }
 
-    /* Layout Canvas Game */
     #maze-canvas { background: #000; border: 4px solid #38bdf8; border-radius: 8px; margin-top: 10px; max-width: 100%; }
     
-    /* Modal Soal Kuis */
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 100; }
     .modal-content { background: #1e293b; padding: 25px; border-radius: 10px; max-width: 500px; width: 90%; text-align: left; }
     .opt-btn { display: block; width: 100%; padding: 10px; margin: 8px 0; background: #475569; color: white; border: none; border-radius: 5px; cursor: pointer; text-align: left; }
     .opt-btn:hover { background: #64748b; }
-    .notice { font-size: 14px; color: #f87171; margin-top: 10px; }
     
     .status-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; background: #475569; color: #fff; }
   </style>
 
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
 
   <div class="container">
-    <h1>Game Labirin 6 Pemain (Solo)</h1>
+    <h1>Game Labirin Solo (P1 vs AI Bot P2-P6)</h1>
     
-    <!-- Status Peran Anda -->
     <div style="margin-bottom: 10px;">
-      Peran Anda: <span id="user-role" style="color: #facc15; font-weight: bold;">Belum Dipilih</span>
+      Status: <span id="user-role" style="color: #facc15; font-weight: bold;">Tekan "Mulai Permainan"</span>
     </div>
 
-    <!-- Papan Skor Individual -->
+    <!-- Papan Skor -->
     <div class="scoreboard">
       <div class="score-card p1">
-        <div class="p-name"><span>P1 (Merah)</span> <span id="st-Player1" class="status-badge">-</span></div>
+        <div class="p-name"><span>P1 (Anda/Merah)</span> <span id="st-Player1" class="status-badge">Player</span></div>
         <div>Skor: <span id="sc-Player1" class="p-score">0</span></div>
       </div>
       <div class="score-card p2">
-        <div class="p-name"><span>P2 (Biru)</span> <span id="st-Player2" class="status-badge">-</span></div>
+        <div class="p-name"><span>P2 (Bot Biru)</span> <span id="st-Player2" class="status-badge">BOT</span></div>
         <div>Skor: <span id="sc-Player2" class="p-score">0</span></div>
       </div>
       <div class="score-card p3">
-        <div class="p-name"><span>P3 (Hijau)</span> <span id="st-Player3" class="status-badge">-</span></div>
+        <div class="p-name"><span>P3 (Bot Hijau)</span> <span id="st-Player3" class="status-badge">BOT</span></div>
         <div>Skor: <span id="sc-Player3" class="p-score">0</span></div>
       </div>
       <div class="score-card p4">
-        <div class="p-name"><span>P4 (Kuning)</span> <span id="st-Player4" class="status-badge">-</span></div>
+        <div class="p-name"><span>P4 (Bot Kuning)</span> <span id="st-Player4" class="status-badge">BOT</span></div>
         <div>Skor: <span id="sc-Player4" class="p-score">0</span></div>
       </div>
       <div class="score-card p5">
-        <div class="p-name"><span>P5 (Ungu)</span> <span id="st-Player5" class="status-badge">-</span></div>
+        <div class="p-name"><span>P5 (Bot Ungu)</span> <span id="st-Player5" class="status-badge">BOT</span></div>
         <div>Skor: <span id="sc-Player5" class="p-score">0</span></div>
       </div>
       <div class="score-card p6">
-        <div class="p-name"><span>P6 (Pink)</span> <span id="st-Player6" class="status-badge">-</span></div>
+        <div class="p-name"><span>P6 (Bot Pink)</span> <span id="st-Player6" class="status-badge">BOT</span></div>
         <div>Skor: <span id="sc-Player6" class="p-score">0</span></div>
       </div>
     </div>
 
-    <!-- Pilih Peran -->
+    <!-- Kontrol Game -->
     <div id="role-box" class="role-selection">
-      <h3>Pilih Karakter Pemain Anda:</h3>
-      <div class="role-buttons">
-        <button id="btn-Player1" class="btn btn-p1" onclick="claimRole('Player1')">Pemain 1 (Merah)</button>
-        <button id="btn-Player2" class="btn btn-p2" onclick="claimRole('Player2')">Pemain 2 (Biru)</button>
-        <button id="btn-Player3" class="btn btn-p3" onclick="claimRole('Player3')">Pemain 3 (Hijau)</button>
-        <button id="btn-Player4" class="btn btn-p4" onclick="claimRole('Player4')">Pemain 4 (Kuning)</button>
-        <button id="btn-Player5" class="btn btn-p5" onclick="claimRole('Player5')">Pemain 5 (Ungu)</button>
-        <button id="btn-Player6" class="btn btn-p6" onclick="claimRole('Player6')">Pemain 6 (Pink)</button>
-      </div>
-      
-      <div id="spectator-section" style="margin-top: 15px;">
-        <button id="btn-spectator" class="btn" style="background: #64748b;" onclick="joinAsSpectator()">Masuk sebagai Penonton (Spectator)</button>
-      </div>
-      <div id="role-notice" class="notice"></div>
+      <button class="btn btn-start" onclick="startGame()">Mulai Permainan Solo</button>
     </div>
 
-    <!-- Canvas Labirin -->
     <canvas id="maze-canvas" width="500" height="500"></canvas>
   </div>
 
-  <!-- Modal Rintangan Soal -->
+  <!-- Modal Kuis -->
   <div id="quiz-modal" class="modal">
     <div class="modal-content">
-      <h3 id="question-title">Rintangan Gerbang!</h3>
+      <h3>Rintangan Gerbang!</h3>
       <p id="question-text">Soal akan tampil di sini...</p>
       <div id="options-container"></div>
     </div>
   </div>
 
   <script>
-    // 1. KONFIGURASI FIREBASE
+    // Konfigurasi Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBF6NkxsXBTX44ZyZdL3qT8PqKG9A1KJ1c",
       authDomain: "labirin-ilmu.firebaseapp.com",
@@ -135,11 +108,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const myClientId = 'user_' + Math.random().toString(36).substr(2, 9);
     let stepCounter = 0;
     let isQuizActive = false;
+    let gameLoopInterval = null;
+    let gameStarted = false;
 
-    // 2. Map Peta Labirin
     const mazeGrid = [
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
       [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -167,37 +140,14 @@
     const FINISH_POS = { x: 18, y: 18 };
 
     const playerConfigs = {
-      Player1: { name: 'Pemain 1', color: '#ef4444', offsetX: 6,  offsetY: 6 },
-      Player2: { name: 'Pemain 2', color: '#3b82f6', offsetX: 18, offsetY: 6 },
-      Player3: { name: 'Pemain 3', color: '#22c55e', offsetX: 6,  offsetY: 12 },
-      Player4: { name: 'Pemain 4', color: '#eab308', offsetX: 18, offsetY: 12 },
-      Player5: { name: 'Pemain 5', color: '#a855f7', offsetX: 6,  offsetY: 18 },
-      Player6: { name: 'Pemain 6', color: '#ec4899', offsetX: 18, offsetY: 18 }
+      Player1: { name: 'Pemain 1', color: '#ef4444', isBot: false, offsetX: 6,  offsetY: 6 },
+      Player2: { name: 'Bot Biru', color: '#3b82f6', isBot: true,  offsetX: 18, offsetY: 6 },
+      Player3: { name: 'Bot Hijau', color: '#22c55e', isBot: true,  offsetX: 6,  offsetY: 12 },
+      Player4: { name: 'Bot Kuning', color: '#eab308', isBot: true,  offsetX: 18, offsetY: 12 },
+      Player5: { name: 'Bot Ungu', color: '#a855f7', isBot: true,  offsetX: 6,  offsetY: 18 },
+      Player6: { name: 'Bot Pink', color: '#ec4899', isBot: true,  offsetX: 18, offsetY: 18 }
     };
 
-    const masterQuizDatabase = [
-      { q: "1. Hal-hal yang harus dipenuhi agar manusia bisa hidup dengan layak dan merasa nyaman dinamakan ...", o: ["Keinginan", "Kebutuhan", "Hiburan", "Tabungan"], a: 1 },
-      { q: "2. Kebutuhan pokok yang wajib dipenuhi terlebih dahulu agar manusia dapat bertahan hidup disebut kebutuhan ...", o: ["Sekunder", "Tersier", "Primer", "Tambahan"], a: 2 },
-      { q: "3. Berikut ini yang termasuk dalam kelompok kebutuhan primer manusia adalah ...", o: ["Mobil, perhiasan, dan televisi", "Makanan, pakaian, dan tempat tinggal", "Alat bantu belajar dan telepon seluler", "Sepeda motor dan komputer"], a: 1 },
-      { q: "4. Kebutuhan yang dipenuhi setelah kebutuhan primer terpenuhi untuk membuat hidup lebih nyaman dinamakan kebutuhan ...", o: ["Primer", "Sekunder", "Tersier", "Mewah"], a: 1 },
-      { q: "5. Kebutuhan tersier merupakan kebutuhan tambahan yang biasanya bersifat ...", o: ["Pokok", "Mendesak", "Mewah", "Darurat"], a: 2 }
-    ];
-
-    function shuffleArray(array) {
-      let shuffled = [...array];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      return shuffled;
-    }
-
-    const playerQuestionBanks = {};
-    Object.keys(playerConfigs).forEach((pKey) => {
-      playerQuestionBanks[pKey] = shuffleArray(masterQuizDatabase);
-    });
-
-    let currentRole = '';
     let players = {
       Player1: { ...START_POS },
       Player2: { ...START_POS },
@@ -206,135 +156,101 @@
       Player5: { ...START_POS },
       Player6: { ...START_POS }
     };
+
     let playerScores = { Player1: 0, Player2: 0, Player3: 0, Player4: 0, Player5: 0, Player6: 0 };
     let playerFinished = { Player1: false, Player2: false, Player3: false, Player4: false, Player5: false, Player6: false };
 
-    // Firebase Listeners
-    db.ref('game/roles').on('value', (snapshot) => {
-      const rolesState = snapshot.val() || {};
-      let takenCount = 0;
+    const masterQuizDatabase = [
+      { q: "1. Hal-hal yang harus dipenuhi agar manusia bisa hidup dengan layak dinamakan ...", o: ["Keinginan", "Kebutuhan", "Hiburan", "Tabungan"], a: 1 },
+      { q: "2. Kebutuhan pokok yang wajib dipenuhi terlebih dahulu disebut kebutuhan ...", o: ["Sekunder", "Tersier", "Primer", "Tambahan"], a: 2 }
+    ];
 
-      Object.keys(playerConfigs).forEach((pKey) => {
-        const btn = document.getElementById(`btn-${pKey}`);
-        const stBadge = document.getElementById(`st-${pKey}`);
-        
-        if (rolesState[pKey]) {
-          takenCount++;
-          if (btn) btn.disabled = true;
-          if (stBadge) {
-            stBadge.innerText = 'Online';
-            stBadge.style.background = '#22c55e';
-          }
-        } else {
-          if (btn) btn.disabled = false;
-          if (stBadge) {
-            stBadge.innerText = 'Kosong';
-            stBadge.style.background = '#475569';
-          }
-        }
-      });
-
-      const notice = document.getElementById('role-notice');
-      if (notice) {
-        notice.innerText = takenCount === 6 ? "Semua slot pemain penuh (6/6). Anda dapat bergabung sebagai Penonton." : "";
-      }
-    });
-
-    db.ref('game/scores').on('value', (snapshot) => {
-      const scores = snapshot.val() || {};
-      Object.keys(playerConfigs).forEach((pKey) => {
-        playerScores[pKey] = scores[pKey] || 0;
-        const scoreElem = document.getElementById(`sc-${pKey}`);
-        if (scoreElem) scoreElem.innerText = playerScores[pKey];
-      });
-    });
-
-    db.ref('game/players').on('value', (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        Object.keys(playerConfigs).forEach((pKey) => {
-          if (data[pKey]) players[pKey] = data[pKey];
-        });
-        renderCanvas();
-      }
-    });
-
-    db.ref('game/finished').on('value', (snapshot) => {
-      playerFinished = snapshot.val() || {};
-    });
-
-    function claimRole(role) {
-      const roleRef = db.ref(`game/roles/${role}`);
-
-      roleRef.transaction((currentVal) => {
-        if (currentVal === null) return myClientId;
-        return;
-      }, (error, committed) => {
-        if (committed) {
-          currentRole = role;
-          roleRef.onDisconnect().remove();
-          
-          document.getElementById('user-role').innerText = `${playerConfigs[role].name}`;
-          document.getElementById('user-role').style.color = playerConfigs[role].color;
-          document.getElementById('role-box').style.display = 'none';
-          
-          db.ref(`game/players/${currentRole}`).set(START_POS);
-          initGame();
-        } else {
-          alert('Slot ini baru saja diambil pemain lain!');
-        }
-      });
-    }
-
-    function joinAsSpectator() {
-      currentRole = 'Spectator';
-      document.getElementById('user-role').innerText = 'Penonton (Spectator)';
+    function startGame() {
+      gameStarted = true;
+      document.getElementById('user-role').innerText = 'Game Berjalan! Gunakan Panah / WASD';
       document.getElementById('role-box').style.display = 'none';
-      initGame();
-    }
 
-    function initGame() {
+      // Mulai Pergerakan Otomatis untuk Bot (P2 sampai P6)
+      if (gameLoopInterval) clearInterval(gameLoopInterval);
+      gameLoopInterval = setInterval(moveBots, 400); // Bot bergerak tiap 0.4 detik
+      
       renderCanvas();
     }
 
-    // Perbaikan Listener Keyboard (Mendukung Arrow Keys & WASD)
-    window.addEventListener('keydown', (e) => {
-      if (!currentRole.startsWith('Player') || playerFinished[currentRole] || isQuizActive) return;
+    // Fungsi Gerakan Otomatis Bot
+    function moveBots() {
+      if (!gameStarted || isQuizActive) return;
 
-      let pos = players[currentRole] || { ...START_POS };
+      Object.keys(playerConfigs).forEach((pKey) => {
+        if (playerConfigs[pKey].isBot && !playerFinished[pKey]) {
+          let pos = players[pKey];
+          let possibleMoves = [];
+
+          const directions = [
+            { x: pos.x, y: pos.y - 1 },
+            { x: pos.x, y: pos.y + 1 },
+            { x: pos.x - 1, y: pos.y },
+            { x: pos.x + 1, y: pos.y }
+          ];
+
+          directions.forEach(d => {
+            if (d.y >= 0 && d.y < 20 && d.x >= 0 && d.x < 20 && mazeGrid[d.y][d.x] === 0) {
+              possibleMoves.push(d);
+            }
+          });
+
+          if (possibleMoves.length > 0) {
+            // Pilih langkah acak
+            const nextPos = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+            players[pKey] = nextPos;
+
+            // Cek jika Bot Sampai ke Finish
+            if (nextPos.x === FINISH_POS.x && nextPos.y === FINISH_POS.y) {
+              playerFinished[pKey] = true;
+              playerScores[pKey] += 500;
+              document.getElementById(`sc-${pKey}`).innerText = playerScores[pKey];
+              alert(`${playerConfigs[pKey].name} telah mencapai FINISH!`);
+            }
+          }
+        }
+      });
+
+      renderCanvas();
+    }
+
+    // Input Keyboard untuk Pemain 1 (Merah)
+    window.addEventListener('keydown', (e) => {
+      if (!gameStarted || playerFinished['Player1'] || isQuizActive) return;
+
+      let pos = players['Player1'];
       let nextX = pos.x;
       let nextY = pos.y;
       let isMoving = false;
 
       const key = e.key.toLowerCase();
-
       if (key === 'arrowup' || key === 'w') { nextY--; isMoving = true; }
       if (key === 'arrowdown' || key === 's') { nextY++; isMoving = true; }
       if (key === 'arrowleft' || key === 'a') { nextX--; isMoving = true; }
       if (key === 'arrowright' || key === 'd') { nextX++; isMoving = true; }
 
       if (isMoving) {
-        e.preventDefault(); // Mencegah scrolling halaman browser saat pakai tombol panah
+        e.preventDefault();
         if (nextY >= 0 && nextY < 20 && nextX >= 0 && nextX < 20) {
           if (mazeGrid[nextY][nextX] === 0) {
             pos.x = nextX;
             pos.y = nextY;
-            db.ref(`game/players/${currentRole}`).set(pos);
-
             stepCounter++;
 
             if (pos.x === FINISH_POS.x && pos.y === FINISH_POS.y) {
-              db.ref(`game/finished/${currentRole}`).set(true);
-              const bonus = 500;
-              const newScore = (playerScores[currentRole] || 0) + bonus;
-              db.ref(`game/scores/${currentRole}`).set(newScore);
-              alert(`SELAMAT! ${playerConfigs[currentRole].name} berhasil mencapai FINISH! (+500 Poin)`);
-              return;
-            }
-
-            if (stepCounter % 5 === 0) {
+              playerFinished['Player1'] = true;
+              playerScores['Player1'] += 500;
+              document.getElementById('sc-Player1').innerText = playerScores['Player1'];
+              alert("SELAMAT! Anda (Pemain 1) berhasil mencapai FINISH!");
+            } else if (stepCounter % 5 === 0) {
               triggerQuiz();
             }
+
+            renderCanvas();
           }
         }
       }
@@ -342,7 +258,6 @@
 
     function renderCanvas() {
       const canvas = document.getElementById('maze-canvas');
-      if (!canvas) return;
       const ctx = canvas.getContext('2d');
       const cellSize = 25;
 
@@ -362,20 +277,13 @@
         }
       }
 
-      // Render Start & Finish
+      // Start & Finish
       ctx.fillStyle = '#22c55e';
       ctx.fillRect(START_POS.x * cellSize, START_POS.y * cellSize, cellSize, cellSize);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 9px sans-serif';
-      ctx.fillText('START', START_POS.x * cellSize + 1, START_POS.y * cellSize + 16);
-
       ctx.fillStyle = '#eab308';
       ctx.fillRect(FINISH_POS.x * cellSize, FINISH_POS.y * cellSize, cellSize, cellSize);
-      ctx.fillStyle = '#000000';
-      ctx.font = 'bold 8px sans-serif';
-      ctx.fillText('FINISH', FINISH_POS.x * cellSize + 1, FINISH_POS.y * cellSize + 16);
 
-      // Render Semua Pemain
+      // Gambar Semua Pemain
       Object.keys(playerConfigs).forEach((pKey) => {
         const conf = playerConfigs[pKey];
         const pPos = players[pKey];
@@ -386,9 +294,7 @@
           ctx.arc(
             pPos.x * cellSize + conf.offsetX,
             pPos.y * cellSize + conf.offsetY,
-            5,
-            0,
-            Math.PI * 2
+            5, 0, Math.PI * 2
           );
           ctx.fill();
         }
@@ -396,12 +302,8 @@
     }
 
     function triggerQuiz() {
-      const myBank = playerQuestionBanks[currentRole];
-      if (!myBank || myBank.length === 0) return;
-
       isQuizActive = true;
-      const randomIdx = Math.floor(Math.random() * myBank.length);
-      const q = myBank[randomIdx];
+      const q = masterQuizDatabase[Math.floor(Math.random() * masterQuizDatabase.length)];
       
       document.getElementById('question-text').innerText = q.q;
       const opts = document.getElementById('options-container');
@@ -419,20 +321,20 @@
     }
 
     function submitAnswer(selected, correct) {
-      let currentScore = playerScores[currentRole] || 0;
-
       if (selected === correct) {
-        currentScore += 100;
-        alert("Jawaban Benar! (+100 Poin untuk Anda)");
+        playerScores['Player1'] += 100;
+        alert("Jawaban Benar! (+100 Poin)");
       } else {
-        currentScore -= 25;
+        playerScores['Player1'] -= 25;
         alert("Jawaban Salah! (-25 Poin)");
       }
       
-      db.ref(`game/scores/${currentRole}`).set(currentScore);
+      document.getElementById('sc-Player1').innerText = playerScores['Player1'];
       document.getElementById('quiz-modal').style.display = 'none';
       isQuizActive = false;
     }
+
+    renderCanvas();
   </script>
 </body>
 </html>
