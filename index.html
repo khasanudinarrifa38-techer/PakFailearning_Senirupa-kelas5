@@ -3,27 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Labirin Tim (Lobi 6 Pemain)</title>
+  <title>Game Labirin 6 Pemain Solo</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #fff; margin: 0; padding: 20px; text-align: center; }
-    .container { max-width: 800px; margin: 0 auto; }
-    .status-bar { display: flex; justify-content: space-around; background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; font-size: 16px; border: 1px solid #334155; }
+    .container { max-width: 900px; margin: 0 auto; }
     
+    /* Papan Skor 6 Pemain */
+    .scoreboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .score-card { background: #334155; padding: 10px; border-radius: 6px; font-size: 13px; text-align: left; border-left: 5px solid #ccc; }
+    .score-card.p1 { border-color: #ef4444; }
+    .score-card.p2 { border-color: #3b82f6; }
+    .score-card.p3 { border-color: #22c55e; }
+    .score-card.p4 { border-color: #eab308; }
+    .score-card.p5 { border-color: #a855f7; }
+    .score-card.p6 { border-color: #ec4899; }
+    .score-card .p-name { font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .score-card .p-score { font-size: 16px; color: #4ade80; font-weight: bold; }
+
+    .role-selection { background: #334155; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .role-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+    .btn { background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
+    .btn:hover:not(:disabled) { opacity: 0.9; }
+    .btn:disabled { background: #64748b; cursor: not-allowed; opacity: 0.6; }
+    
+    .btn-p1 { background: #ef4444; }
+    .btn-p2 { background: #3b82f6; }
+    .btn-p3 { background: #22c55e; }
+    .btn-p4 { background: #eab308; color: #000; }
+    .btn-p5 { background: #a855f7; }
+    .btn-p6 { background: #ec4899; }
+
     /* Layout Canvas Game */
-    #maze-canvas { background: #000; border: 4px solid #38bdf8; border-radius: 8px; margin-top: 10px; max-width: 100%; box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); }
-    
-    /* Overlay Lobi Penunggu */
-    .overlay { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); justify-content: center; align-items: center; z-index: 100; }
-    .lobby-box { background: #1e293b; padding: 30px; border-radius: 12px; max-width: 450px; width: 90%; border: 2px solid #38bdf8; text-align: center; }
+    #maze-canvas { background: #000; border: 4px solid #38bdf8; border-radius: 8px; margin-top: 10px; max-width: 100%; }
     
     /* Modal Soal Kuis */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 10; }
-    .modal-content { background: #1e293b; padding: 25px; border-radius: 10px; max-width: 500px; width: 90%; text-align: left; border: 1px solid #38bdf8; }
-    .opt-btn { display: block; width: 100%; padding: 12px; margin: 8px 0; background: #334155; color: white; border: 1px solid #475569; border-radius: 5px; cursor: pointer; text-align: left; font-size: 15px; transition: 0.2s; }
-    .opt-btn:hover { background: #3b82f6; border-color: #60a5fa; }
-    .btn-join { background: #22c55e; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-top: 15px; }
-    .btn-join:hover { background: #16a34a; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 100; }
+    .modal-content { background: #1e293b; padding: 25px; border-radius: 10px; max-width: 500px; width: 90%; text-align: left; }
+    .opt-btn { display: block; width: 100%; padding: 10px; margin: 8px 0; background: #475569; color: white; border: none; border-radius: 5px; cursor: pointer; text-align: left; }
+    .opt-btn:hover { background: #64748b; }
+    .notice { font-size: 14px; color: #f87171; margin-top: 10px; }
+    
+    .status-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; background: #475569; color: #fff; }
   </style>
 
   <!-- Firebase SDK -->
@@ -32,24 +53,58 @@
 </head>
 <body>
 
-  <!-- Overlay Lobi Tunggu Pemain -->
-  <div id="lobby-overlay" class="overlay">
-    <div class="lobby-box">
-      <h2>Lobi Permainan</h2>
-      <p id="lobby-status">Menghubungkan ke server...</p>
-      <h3 style="color: #facc15;"><span id="player-count">0</span> / 6 Pemain Siap</h3>
-      <div id="role-info" style="margin-top: 10px; font-weight: bold; color: #38bdf8;"></div>
-      <button id="join-btn" class="btn-join" onclick="joinGame()" style="display:none;">Masuk Permainan</button>
-    </div>
-  </div>
-
   <div class="container">
-    <h1>Labirin Kuis Tim</h1>
+    <h1>Game Labirin 6 Pemain (Solo)</h1>
     
-    <div class="status-bar">
-      <div>Total Poin: <span id="team-score" style="color: #4ade80;">0</span></div>
-      <div>Peran Anda: <span id="user-role" style="color: #facc15;">-</span></div>
-      <div>Pemain Terhubung: <span id="online-count" style="color: #38bdf8;">0</span></div>
+    <!-- Status Peran Anda -->
+    <div style="margin-bottom: 10px;">
+      Peran Anda: <span id="user-role" style="color: #facc15; font-weight: bold;">Belum Dipilih</span>
+    </div>
+
+    <!-- Papan Skor Individual -->
+    <div class="scoreboard">
+      <div class="score-card p1">
+        <div class="p-name"><span>P1 (Merah)</span> <span id="st-P1" class="status-badge">-</span></div>
+        <div>Skor: <span id="sc-P1" class="p-score">0</span></div>
+      </div>
+      <div class="score-card p2">
+        <div class="p-name"><span>P2 (Biru)</span> <span id="st-P2" class="status-badge">-</span></div>
+        <div>Skor: <span id="sc-P2" class="p-score">0</span></div>
+      </div>
+      <div class="score-card p3">
+        <div class="p-name"><span>P3 (Hijau)</span> <span id="st-P3" class="status-badge">-</span></div>
+        <div>Skor: <span id="sc-P3" class="p-score">0</span></div>
+      </div>
+      <div class="score-card p4">
+        <div class="p-name"><span>P4 (Kuning)</span> <span id="st-P4" class="status-badge">-</span></div>
+        <div>Skor: <span id="sc-P4" class="p-score">0</span></div>
+      </div>
+      <div class="score-card p5">
+        <div class="p-name"><span>P5 (Ungu)</span> <span id="st-P5" class="status-badge">-</span></div>
+        <div>Skor: <span id="sc-P5" class="p-score">0</span></div>
+      </div>
+      <div class="score-card p6">
+        <div class="p-name"><span>P6 (Pink)</span> <span id="st-P6" class="status-badge">-</span></div>
+        <div>Skor: <span id="sc-P6" class="p-score">0</span></div>
+      </div>
+    </div>
+
+    <!-- Pilih Peran -->
+    <div id="role-box" class="role-selection">
+      <h3>Pilih Karakter Pemain Anda:</h3>
+      <div class="role-buttons">
+        <button id="btn-Player1" class="btn btn-p1" onclick="claimRole('Player1')">Pemain 1 (Merah)</button>
+        <button id="btn-Player2" class="btn btn-p2" onclick="claimRole('Player2')">Pemain 2 (Biru)</button>
+        <button id="btn-Player3" class="btn btn-p3" onclick="claimRole('Player3')">Pemain 3 (Hijau)</button>
+        <button id="btn-Player4" class="btn btn-p4" onclick="claimRole('Player4')">Pemain 4 (Kuning)</button>
+        <button id="btn-Player5" class="btn btn-p5" onclick="claimRole('Player5')">Pemain 5 (Ungu)</button>
+        <button id="btn-Player6" class="btn btn-p6" onclick="claimRole('Player6')">Pemain 6 (Pink)</button>
+      </div>
+      
+      <div id="spectator-section" style="margin-top: 15px;">
+        <button id="btn-spectator" class="btn" style="background: #64748b;" onclick="joinAsSpectator()">Masuk sebagai Penonton (Spectator)</button>
+      </div>
+      <div id="role-notice" class="notice"></div>
     </div>
 
     <!-- Canvas Labirin -->
@@ -59,14 +114,14 @@
   <!-- Modal Rintangan Soal -->
   <div id="quiz-modal" class="modal">
     <div class="modal-content">
-      <h3 id="question-title" style="color: #facc15;">Rintangan Gerbang!</h3>
+      <h3 id="question-title">Rintangan Gerbang!</h3>
       <p id="question-text">Soal akan tampil di sini...</p>
       <div id="options-container"></div>
     </div>
   </div>
 
   <script>
-    // Konfigurasi Firebase
+    // 1. KONFIGURASI FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyBF6NkxsXBTX44ZyZdL3qT8PqKG9A1KJ1c",
       authDomain: "labirin-ilmu.firebaseapp.com",
@@ -80,9 +135,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Peta Labirin (1 = Dinding, 0 = Jalan, 2 = Finish)
-    const mazeMap = [
-    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    const myClientId = 'user_' + Math.random().toString(36).substr(2, 9);
+
+    // 2. Map Peta Labirin
+    const mazeGrid = [
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
       [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1], // (1,1) START
       [1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,1,1,1,0,1],
       [1,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,1],
@@ -100,153 +157,238 @@
       [1,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,1,0,1],
       [1,1,1,1,1,0,1,1,1,1,0,1,0,1,1,1,1,1,0,1],
       [1,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1],
-      [1,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1], // (18,18) FINISH Terhubung penuh
+      [1,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1], // (18,18) FINISH
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
+    const START_POS = { x: 1, y: 1 };
+    const FINISH_POS = { x: 18, y: 18 };
+
+    // Warna & Offset Pemain agar tidak saling menutupi
+    const playerConfigs = {
+      Player1: { name: 'Pemain 1', color: '#ef4444', offsetX: 6,  offsetY: 6 },
+      Player2: { name: 'Pemain 2', color: '#3b82f6', offsetX: 18, offsetY: 6 },
+      Player3: { name: 'Pemain 3', color: '#22c55e', offsetX: 6,  offsetY: 12 },
+      Player4: { name: 'Pemain 4', color: '#eab308', offsetX: 18, offsetY: 12 },
+      Player5: { name: 'Pemain 5', color: '#a855f7', offsetX: 6,  offsetY: 18 },
+      Player6: { name: 'Pemain 6', color: '#ec4899', offsetX: 18, offsetY: 18 }
+    };
+
     // Database Soal
     const quizDatabase = [
-     { q: "1. Warna dasar yang tidak dapat dibuat dari campuran warna lain disebut warna...", o: ["Sekunder", "Primer", "Tersier", "Netral"], a: 1 },
-  { q: "2. Hasil pencampuran antara warna merah dan warna kuning akan menghasilkan warna...", o: ["Hijau", "Ungu", "Oranye", "Cokelat"], a: 2 },
-  { q: "3. Unsur seni rupa paling dasar yang digunakan untuk membuat garis dan bidang adalah...", o: ["Titik", "Tekstur", "Warna", "Ruang"], a: 0 },
-  { q: "4. Nilai raba dari permukaan suatu benda dalam seni rupa disebut...", o: ["Bentuk", "Tekstur", "Gelap terang", "Pola"], a: 1 },
-  { q: "5. Gambar hias yang dibuat dengan cara memotong dan menempel bahan kertas atau kain pada permukaan gambar disebut teknik...", o: ["Mosaik", "Koleksi", "Kolase", "Montase"], a: 2 },
-  { q: "6. Karya seni rupa yang memiliki panjang, lebar, dan volume/ruang disebut karya seni...", o: ["2 Dimensi", "3 Dimensi", "4 Dimensi", "Murni"], a: 1 },
-  { q: "7. Motif hias yang ragam bentuknya meniru tumbuhan (daun, bunga, sulur) disebut motif...", o: ["Geometris", "Fauna", "Flora", "Figuratif"], a: 2 },
-  { q: "8. Prinsip seni rupa yang menunjukkan kesan seimbang antara bagian kiri dan kanan pada susunan gambar disebut...", o: ["Keseimbangan", "Irama", "Keserasian", "Kesatuan"], a: 0 },
-  { q: "9. Alat yang biasanya digunakan untuk mengukir atau membentuk bahan lunak seperti tanah liat atau lilin adalah...", o: ["Pahat", "Kuas", "Butsir", "Cutter"], a: 2 },
-  { q: "10. Keteraturan pengulangan unsur seni rupa seperti garis, bentuk, atau warna secara berulang akan menciptakan kesan...", o: ["Keseimbangan", "Irama (Ritme)", "Tekstur", "Penekanan"], a: 1 }
+      { q: "1. Unsur seni rupa yang merupakan titik-titik yang terhubung dan memiliki dimensi panjang adalah ...", o: ["Garis", "Warna", "Bidang", "Tekstur"], a: 0 },
+      { q: "2. Bidang yang dibentuk dari garis-garis geometris dinamakan bidang ...", o: ["Organis", "Geometris", "Tak beraturan", "Bebas"], a: 1 },
+      { q: "3. Campuran warna merah dan kuning dalam lingkaran warna akan menghasilkan warna ...", o: ["Hijau", "Jingga/Oranye", "Ungu", "Cokelat"], a: 1 },
+      { q: "4. Warna primer terdiri dari tiga warna dasar, yaitu ...", o: ["Merah, Kuning, Biru", "Merah, Hijau, Biru", "Hitam, Putih, Abu-abu", "Kuning, Jingga, Merah"], a: 0 },
+      { q: "5. Nilai raba dari permukaan suatu benda dalam seni rupa disebut ...", o: ["Garis", "Ruang", "Tekstur", "Bentuk"], a: 2 },
+      { q: "6. Tekstur yang ketika dilihat dan diraba memiliki kesan yang sama dinamakan tekstur ...", o: ["Semu", "Nyata", "Tiruan", "Khayalan"], a: 1 },
+      { q: "7. Gambar dekoratif pada ragam hias nusantara umumnya menggunakan motif ...", o: ["Manusia, Hewan, Tumbuhan", "Robot, Mobil, Pesawat", "Gedung, Jalan, Jembatan", "Tulisan, Angka, Simbol"], a: 0 },
+      { q: "8. Prinsip seni rupa yang menunjukkan keserasian antara unsur satu dengan yang lain dinamakan ...", o: ["Keseimbangan", "Harmoni/Keselarasan", "Penekanan", "Proporsi"], a: 1 },
+      { q: "9. Kesan berat yang seimbang pada bagian kiri dan kanan karya seni disebut prinsip ...", o: ["Ritme", "Keseimbangan", "Kontras", "Kesatuan"], a: 1 },
+      { q: "10. Teknik menggambar dengan menggunakan garis-garis sejajar atau bersilang dinamakan teknik ...", o: ["Arsir", "Dusel", "Pointilis", "Aquarel"], a: 0 }
     ];
 
-    let myPlayerId = 'player_' + Math.random().toString(36).substr(2, 9);
-    let myRole = 'spectator'; // 'player' atau 'spectator'
-    let isGameStarted = false;
-    let playerPos = { x: 1, y: 1 };
-    let currentScore = 0;
-    const tileSize = 25;
+    let currentRole = '';
+    let players = {
+      Player1: { ...START_POS },
+      Player2: { ...START_POS },
+      Player3: { ...START_POS },
+      Player4: { ...START_POS },
+      Player5: { ...START_POS },
+      Player6: { ...START_POS }
+    };
+    let playerScores = { Player1: 0, Player2: 0, Player3: 0, Player4: 0, Player5: 0, Player6: 0 };
+    let playerFinished = { Player1: false, Player2: false, Player3: false, Player4: false, Player5: false, Player6: false };
 
-    const canvas = document.getElementById('maze-canvas');
-    const ctx = canvas.getContext('2d');
+    // Pantau Status Peran
+    db.ref('game/roles').on('value', (snapshot) => {
+      const rolesState = snapshot.val() || {};
+      let takenCount = 0;
 
-    // Mendaftarkan Kehadiran Pemain di Firebase
-    const playerRef = db.ref('lobby/players/' + myPlayerId);
-    playerRef.set({ id: myPlayerId, joinedAt: firebase.database.ServerValue.TIMESTAMP });
-    playerRef.onDisconnect().remove();
+      Object.keys(playerConfigs).forEach((pKey) => {
+        const btn = document.getElementById(`btn-${pKey}`);
+        const stBadge = document.getElementById(`st-${pKey}`);
+        
+        if (rolesState[pKey]) {
+          takenCount++;
+          btn.disabled = true;
+          btn.innerText = `${playerConfigs[pKey].name} (Terisi)`;
+          stBadge.innerText = 'Online';
+          stBadge.style.background = '#22c55e';
+        } else {
+          btn.disabled = false;
+          btn.innerText = `${playerConfigs[pKey].name} (${pKey === 'Player1' ? 'Merah' : pKey === 'Player2' ? 'Biru' : pKey === 'Player3' ? 'Hijau' : pKey === 'Player4' ? 'Kuning' : pKey === 'Player5' ? 'Ungu' : 'Pink'})`;
+          stBadge.innerText = 'Kosong';
+          stBadge.style.background = '#475569';
+        }
+      });
 
-    // Pantau Jumlah Pemain Terhubung
-    db.ref('lobby/players').on('value', (snapshot) => {
-      const players = snapshot.val() || {};
-      const count = Object.keys(players).length;
-      
-      document.getElementById('player-count').innerText = count;
-      document.getElementById('online-count').innerText = count;
-
-      const playerKeys = Object.keys(players);
-      const myIndex = playerKeys.indexOf(myPlayerId);
-
-      // 6 Pemain Pertama = Pemain Aktif,sisanya Penonton
-      if (myIndex !== -1 && myIndex < 6) {
-        myRole = 'player';
-        document.getElementById('role-info').innerText = "Anda masuk sebagai: Pemain Aktif (Bisa Mengontrol)";
+      const notice = document.getElementById('role-notice');
+      if (takenCount === 6) {
+        notice.innerText = "Semua slot pemain penuh (6/6). Anda dapat bergabung sebagai Penonton.";
       } else {
-        myRole = 'spectator';
-        document.getElementById('role-info').innerText = "Anda masuk sebagai: Penonton (Hanya Melihat)";
-      }
-      document.getElementById('user-role').innerText = myRole === 'player' ? 'Pemain Aktif' : 'Penonton';
-
-      // Cek Kelayakan Memulai Game (Minimal 6 Pemain)
-      if (count >= 6) {
-        document.getElementById('lobby-status').innerText = "Jumlah pemain cukup! Menunggu dimulai...";
-        document.getElementById('join-btn').style.display = 'inline-block';
-      } else {
-        document.getElementById('lobby-status').innerText = "Menunggu hingga 6 pemain berkumpul...";
-        document.getElementById('join-btn').style.display = 'none';
+        notice.innerText = "";
       }
     });
 
-    // Sinkronisasi Poin Real-time
-    db.ref('game/score').on('value', (snapshot) => {
-      currentScore = snapshot.val() || 0;
-      document.getElementById('team-score').innerText = currentScore;
+    // Pantau Skor Masing-masing Pemain
+    db.ref('game/scores').on('value', (snapshot) => {
+      const scores = snapshot.val() || {};
+      Object.keys(playerConfigs).forEach((pKey) => {
+        playerScores[pKey] = scores[pKey] || 0;
+        const scoreElem = document.getElementById(`sc-${pKey}`);
+        if (scoreElem) scoreElem.innerText = playerScores[pKey];
+      });
     });
 
-    // Sinkronisasi Posisi Pemain Real-time
-    db.ref('game/position').on('value', (snapshot) => {
-      const pos = snapshot.val();
-      if (pos) {
-        playerPos = pos;
-        drawMaze();
+    // Pantau Posisi Pemain
+    db.ref('game/players').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        Object.keys(playerConfigs).forEach((pKey) => {
+          if (data[pKey]) players[pKey] = data[pKey];
+        });
+        renderCanvas();
       }
     });
 
-    function joinGame() {
-      document.getElementById('lobby-overlay').style.display = 'none';
-      isGameStarted = true;
-      drawMaze();
+    // Pantau Status Selesai
+    db.ref('game/finished').on('value', (snapshot) => {
+      const finishedData = snapshot.val() || {};
+      playerFinished = finishedData;
+    });
+
+    // Mengambil Slot Pemain
+    function claimRole(role) {
+      const roleRef = db.ref(`game/roles/${role}`);
+
+      roleRef.transaction((currentVal) => {
+        if (currentVal === null) return myClientId;
+        return;
+      }, (error, committed) => {
+        if (committed) {
+          currentRole = role;
+          roleRef.onDisconnect().remove();
+          
+          document.getElementById('user-role').innerText = `${playerConfigs[role].name}`;
+          document.getElementById('user-role').style.color = playerConfigs[role].color;
+          document.getElementById('role-box').style.display = 'none';
+          
+          db.ref(`game/players/${currentRole}`).set(START_POS);
+          initGame();
+        } else {
+          alert('Slot ini baru saja diambil pemain lain!');
+        }
+      });
     }
 
-    // Menggambar Labirin
-    function drawMaze() {
+    // Masuk Sebagai Penonton
+    function joinAsSpectator() {
+      currentRole = 'Spectator';
+      document.getElementById('user-role').innerText = 'Penonton (Spectator)';
+      document.getElementById('role-box').style.display = 'none';
+      initGame();
+    }
+
+    function initGame() {
+      if (currentRole.startsWith('Player')) {
+        window.addEventListener('keydown', (e) => {
+          if (playerFinished[currentRole]) return;
+
+          let pos = players[currentRole];
+          let nextX = pos.x;
+          let nextY = pos.y;
+
+          if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') nextY--;
+          if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') nextY++;
+          if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') nextX--;
+          if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') nextX++;
+
+          if (nextY >= 0 && nextY < 20 && nextX >= 0 && nextX < 20) {
+            if (mazeGrid[nextY][nextX] === 0) {
+              pos.x = nextX;
+              pos.y = nextY;
+              db.ref(`game/players/${currentRole}`).set(pos);
+
+              // Cek Kemenangan Individu
+              if (pos.x === FINISH_POS.x && pos.y === FINISH_POS.y) {
+                db.ref(`game/finished/${currentRole}`).set(true);
+                const bonus = 500;
+                const newScore = (playerScores[currentRole] || 0) + bonus;
+                db.ref(`game/scores/${currentRole}`).set(newScore);
+                alert(`SELAMAT! ${playerConfigs[currentRole].name} berhasil mencapai FINISH! (+500 Poin)`);
+                return;
+              }
+
+              // Kesempatan Kuis
+              if (Math.random() < 0.05) {
+                triggerQuiz();
+              }
+            }
+          }
+        });
+      }
+
+      renderCanvas();
+    }
+
+    function renderCanvas() {
+      const canvas = document.getElementById('maze-canvas');
+      const ctx = canvas.getContext('2d');
+      const cellSize = 25;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
+      // Gambar Dinding & Jalur
       for (let r = 0; r < 20; r++) {
         for (let c = 0; c < 20; c++) {
-          if (mazeMap[r][c] === 1) {
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
-            ctx.strokeStyle = '#334155';
-            ctx.strokeRect(c * tileSize, r * tileSize, tileSize, tileSize);
-          } else if (mazeMap[r][c] === 2) {
-            ctx.fillStyle = '#22c55e';
-            ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+          if (mazeGrid[r][c] === 1) {
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+            ctx.strokeStyle = '#1e293b';
+            ctx.strokeRect(c * cellSize, r * cellSize, cellSize, cellSize);
           } else {
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
           }
         }
       }
 
-      // Gambar Karakter Utama
-      ctx.fillStyle = '#ef4444';
-      ctx.beginPath();
-      ctx.arc(playerPos.x * tileSize + 12.5, playerPos.y * tileSize + 12.5, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.stroke();
+      // Gambar Area START (Hijau)
+      ctx.fillStyle = '#22c55e';
+      ctx.fillRect(START_POS.x * cellSize, START_POS.y * cellSize, cellSize, cellSize);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.fillText('START', START_POS.x * cellSize + 1, START_POS.y * cellSize + 16);
+
+      // Gambar Area FINISH (Emas/Kuning)
+      ctx.fillStyle = '#eab308';
+      ctx.fillRect(FINISH_POS.x * cellSize, FINISH_POS.y * cellSize, cellSize, cellSize);
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 8px sans-serif';
+      ctx.fillText('FINISH', FINISH_POS.x * cellSize + 1, FINISH_POS.y * cellSize + 16);
+
+      // Render 6 Pemain
+      Object.keys(playerConfigs).forEach((pKey) => {
+        const conf = playerConfigs[pKey];
+        const pPos = players[pKey];
+
+        if (pPos) {
+          ctx.fillStyle = conf.color;
+          ctx.beginPath();
+          ctx.arc(
+            pPos.x * cellSize + conf.offsetX,
+            pPos.y * cellSize + conf.offsetY,
+            4, // Ukuran lingkaran disesuaikan
+            0,
+            Math.PI * 2
+          );
+          ctx.fill();
+        }
+      });
     }
 
-    // Kontrol Keyboard (Hanya Aktif untuk 6 Pemain Pertama)
-    window.addEventListener('keydown', (e) => {
-      if (!isGameStarted || myRole !== 'player') return; // Penonton tidak bisa mengontrol
-
-      let newX = playerPos.x;
-      let newY = playerPos.y;
-
-      if (e.key === 'ArrowUp') newY--;
-      if (e.key === 'ArrowDown') newY++;
-      if (e.key === 'ArrowLeft') newX--;
-      if (e.key === 'ArrowRight') newX++;
-
-      if (mazeMap[newY] && mazeMap[newY][newX] !== 1) {
-        playerPos.x = newX;
-        playerPos.y = newY;
-        
-        // Update Posisi ke Firebase agar Penonton & Pemain Lain Melihat Pergerakan
-        db.ref('game/position').set(playerPos);
-
-        if (mazeMap[newY][newX] === 2) {
-          alert("Selamat! Tim berhasil keluar dari labirin dengan skor: " + currentScore);
-          db.ref('game/position').set({ x: 1, y: 1 });
-          return;
-        }
-
-        if (Math.random() < 0.08) {
-          triggerQuiz();
-        }
-      }
-    });
-
-    // Logika Kuis
+    // Logika Kuis Individu
     function triggerQuiz() {
       const randomIdx = Math.floor(Math.random() * quizDatabase.length);
       const q = quizDatabase[randomIdx];
@@ -267,15 +409,17 @@
     }
 
     function submitAnswer(selected, correct) {
+      let currentScore = playerScores[currentRole] || 0;
+
       if (selected === correct) {
         currentScore += 100;
-        alert("Jawaban Benar! (+100 Poin)");
+        alert("Jawaban Benar! (+100 Poin untuk Anda)");
       } else {
         currentScore -= 25;
         alert("Jawaban Salah! (-25 Poin)");
       }
       
-      db.ref('game/score').set(currentScore);
+      db.ref(`game/scores/${currentRole}`).set(currentScore);
       document.getElementById('quiz-modal').style.display = 'none';
     }
   </script>
