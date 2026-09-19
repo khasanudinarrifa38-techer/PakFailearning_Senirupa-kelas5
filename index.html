@@ -120,7 +120,7 @@
     </div>
   </div>
 
-  <script>
+ <script>
     // 1. KONFIGURASI FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyBF6NkxsXBTX44ZyZdL3qT8PqKG9A1KJ1c",
@@ -137,10 +137,13 @@
 
     const myClientId = 'user_' + Math.random().toString(36).substr(2, 9);
 
+    // Variabel Penghitung Langkah Lokal
+    let stepCounter = 0;
+
     // 2. Map Peta Labirin
     const mazeGrid = [
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1], // (1,1) START
+      [1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
       [1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,1,1,1,0,1],
       [1,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,1],
       [1,0,1,1,1,1,1,0,1,1,1,1,1,1,1,1,0,1,0,1],
@@ -157,14 +160,13 @@
       [1,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,1,0,1],
       [1,1,1,1,1,0,1,1,1,1,0,1,0,1,1,1,1,1,0,1],
       [1,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,1],
-      [1,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1], // (18,18) FINISH
+      [1,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1],
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
     const START_POS = { x: 1, y: 1 };
     const FINISH_POS = { x: 18, y: 18 };
 
-    // Warna & Offset Pemain agar tidak saling menutupi
     const playerConfigs = {
       Player1: { name: 'Pemain 1', color: '#ef4444', offsetX: 6,  offsetY: 6 },
       Player2: { name: 'Pemain 2', color: '#3b82f6', offsetX: 18, offsetY: 6 },
@@ -174,7 +176,6 @@
       Player6: { name: 'Pemain 6', color: '#ec4899', offsetX: 18, offsetY: 18 }
     };
 
-    // Database Master (50 Soal)
     const masterQuizDatabase = [
       { q: "1. Hal-hal yang harus dipenuhi agar manusia bisa hidup dengan layak dan merasa nyaman dinamakan ...", o: ["Keinginan", "Kebutuhan", "Hiburan", "Tabungan"], a: 1 },
       { q: "2. Kebutuhan pokok yang wajib dipenuhi terlebih dahulu agar manusia dapat bertahan hidup disebut kebutuhan ...", o: ["Sekunder", "Tersier", "Primer", "Tambahan"], a: 2 },
@@ -228,7 +229,6 @@
       { q: "50. Memanfaatkan kembali barang-barang bekas menjadi benda yang berguna dinamakan kegiatan ...", o: ["Daur ulang", "Pembakaran", "Reboisasi", "Eksploitasi"], a: 0 }
     ];
 
-    // Fungsi Pengacak Array (Fisher-Yates Shuffle)
     function shuffleArray(array) {
       let shuffled = [...array];
       for (let i = shuffled.length - 1; i > 0; i--) {
@@ -238,10 +238,8 @@
       return shuffled;
     }
 
-    // Membagi 20 Soal Berbeda untuk Masing-masing dari 6 Pemain
     const playerQuestionBanks = {};
     Object.keys(playerConfigs).forEach((pKey) => {
-      // Mengacak seluruh bank soal lalu mengambil 20 soal pertama
       playerQuestionBanks[pKey] = shuffleArray(masterQuizDatabase).slice(0, 20);
     });
 
@@ -257,7 +255,6 @@
     let playerScores = { Player1: 0, Player2: 0, Player3: 0, Player4: 0, Player5: 0, Player6: 0 };
     let playerFinished = { Player1: false, Player2: false, Player3: false, Player4: false, Player5: false, Player6: false };
 
-    // Pantau Status Peran
     db.ref('game/roles').on('value', (snapshot) => {
       const rolesState = snapshot.val() || {};
       let takenCount = 0;
@@ -288,7 +285,6 @@
       }
     });
 
-    // Pantau Skor Masing-masing Pemain
     db.ref('game/scores').on('value', (snapshot) => {
       const scores = snapshot.val() || {};
       Object.keys(playerConfigs).forEach((pKey) => {
@@ -298,7 +294,6 @@
       });
     });
 
-    // Pantau Posisi Pemain
     db.ref('game/players').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -309,13 +304,11 @@
       }
     });
 
-    // Pantau Status Selesai
     db.ref('game/finished').on('value', (snapshot) => {
       const finishedData = snapshot.val() || {};
       playerFinished = finishedData;
     });
 
-    // Mengambil Slot Pemain
     function claimRole(role) {
       const roleRef = db.ref(`game/roles/${role}`);
 
@@ -339,7 +332,6 @@
       });
     }
 
-    // Masuk Sebagai Penonton
     function joinAsSpectator() {
       currentRole = 'Spectator';
       document.getElementById('user-role').innerText = 'Penonton (Spectator)';
@@ -355,17 +347,21 @@
           let pos = players[currentRole];
           let nextX = pos.x;
           let nextY = pos.y;
+          let isMoving = false;
 
-          if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') nextY--;
-          if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') nextY++;
-          if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') nextX--;
-          if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') nextX++;
+          if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { nextY--; isMoving = true; }
+          if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { nextY++; isMoving = true; }
+          if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { nextX--; isMoving = true; }
+          if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { nextX++; isMoving = true; }
 
-          if (nextY >= 0 && nextY < 20 && nextX >= 0 && nextX < 20) {
+          if (isMoving && nextY >= 0 && nextY < 20 && nextX >= 0 && nextX < 20) {
             if (mazeGrid[nextY][nextX] === 0) {
               pos.x = nextX;
               pos.y = nextY;
               db.ref(`game/players/${currentRole}`).set(pos);
+
+              // Tambahkan Hitungan Langkah
+              stepCounter++;
 
               // Cek Kemenangan Individu
               if (pos.x === FINISH_POS.x && pos.y === FINISH_POS.y) {
@@ -377,8 +373,8 @@
                 return;
               }
 
-              // Kesempatan Kuis
-              if (Math.random() < 0.05) {
+              // Pemicu Soal Setiap Tepat 5 Langkah
+              if (stepCounter % 5 === 0) {
                 triggerQuiz();
               }
             }
@@ -396,7 +392,6 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Gambar Dinding & Jalur
       for (let r = 0; r < 20; r++) {
         for (let c = 0; c < 20; c++) {
           if (mazeGrid[r][c] === 1) {
@@ -411,21 +406,18 @@
         }
       }
 
-      // Gambar Area START (Hijau)
       ctx.fillStyle = '#22c55e';
       ctx.fillRect(START_POS.x * cellSize, START_POS.y * cellSize, cellSize, cellSize);
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 9px sans-serif';
       ctx.fillText('START', START_POS.x * cellSize + 1, START_POS.y * cellSize + 16);
 
-      // Gambar Area FINISH (Emas/Kuning)
       ctx.fillStyle = '#eab308';
       ctx.fillRect(FINISH_POS.x * cellSize, FINISH_POS.y * cellSize, cellSize, cellSize);
       ctx.fillStyle = '#000000';
       ctx.font = 'bold 8px sans-serif';
       ctx.fillText('FINISH', FINISH_POS.x * cellSize + 1, FINISH_POS.y * cellSize + 16);
 
-      // Render 6 Pemain
       Object.keys(playerConfigs).forEach((pKey) => {
         const conf = playerConfigs[pKey];
         const pPos = players[pKey];
@@ -436,7 +428,7 @@
           ctx.arc(
             pPos.x * cellSize + conf.offsetX,
             pPos.y * cellSize + conf.offsetY,
-            4, // Ukuran lingkaran disesuaikan
+            4,
             0,
             Math.PI * 2
           );
@@ -445,7 +437,6 @@
       });
     }
 
-    // Logika Kuis Khusus Pemain
     function triggerQuiz() {
       const myBank = playerQuestionBanks[currentRole];
       if (!myBank || myBank.length === 0) return;
