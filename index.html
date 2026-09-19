@@ -174,58 +174,76 @@
       Player6: { name: 'Pemain 6', color: '#ec4899', offsetX: 18, offsetY: 18 }
     };
 
-    // Database Soal
-    const quizDatabase = [
-     { q: "1. Hal-hal yang harus dipenuhi agar manusia bisa hidup dengan layak dan merasa nyaman dinamakan ...", o: ["Keinginan", "Kebutuhan", "Hiburan", "Tabungan"], a: 1 },
-  { q: "2. Kebutuhan pokok yang wajib dipenuhi terlebih dahulu agar manusia dapat bertahan hidup disebut kebutuhan ...", o: ["Sekunder", "Tersier", "Primer", "Tambahan"], a: 2 },
-  { q: "3. Berikut ini yang termasuk dalam kelompok kebutuhan primer manusia adalah ...", o: ["Mobil, perhiasan, dan televisi", "Makanan, pakaian, dan tempat tinggal", "Alat bantu belajar dan telepon seluler", "Sepeda motor dan komputer"], a: 1 },
-  { q: "4. Kebutuhan yang dipenuhi setelah kebutuhan primer terpenuhi untuk membuat hidup lebih nyaman dinamakan kebutuhan ...", o: ["Primer", "Sekunder", "Tersier", "Mewah"], a: 1 },
-  { q: "5. Kebutuhan tersier merupakan kebutuhan tambahan yang biasanya bersifat ...", o: ["Pokok", "Mendesak", "Mewah", "Darurat"], a: 2 },
-  { q: "6. Salah satu tujuan utama dari pemenuhan kebutuhan tersier bagi seseorang adalah untuk ...", o: ["Mempertahankan hidup", "Menjaga kesehatan dasar", "Memberikan kesenangan atau status sosial", "Memenuhi kebutuhan gizi harian"], a: 2 },
-  { q: "7. Kegiatan ekonomi adalah segala usaha yang dilakukan manusia untuk ...", o: ["Menghasilkan, menyalurkan, dan menggunakan barang/jasa", "Mencari hiburan semata di waktu senggang", "Menimbun kekayaan tanpa batas", "Menghabiskan sumber daya alam"], a: 0 },
-  { q: "8. Kegiatan menghasilkan barang atau jasa yang berguna bagi kehidupan manusia disebut ...", o: ["Distribusi", "Konsumsi", "Produksi", "Investasi"], a: 2 },
-  { q: "9. Orang atau lembaga yang melakukan kegiatan produksi dinamakan ...", o: ["Distributor", "Konsumen", "Produsen", "Kurir"], a: 2 },
-  { q: "10. Contoh pekerjaan di bidang jasa yang termasuk dalam kegiatan produksi adalah ...", o: ["Petani menanam padi", "Guru mengajar siswa", "Nelayan menangkap ikan", "Pengrajin membuat meja"], a: 1 },
-  { q: "11. Kegiatan menyalurkan barang atau jasa dari produsen kepada konsumen dinamakan ...", o: ["Produksi", "Distribusi", "Konsumsi", "Promosi"], a: 1 },
-  { q: "12. Pihak atau orang yang melakukan kegiatan distribusi disebut ...", o: ["Produsen", "Distributor", "Konsumen", "Investor"], a: 1 },
-  { q: "13. Kegiatan menggunakan atau menghabiskan barang dan jasa untuk memenuhi kebutuhan hidup disebut ...", o: ["Produksi", "Distribusi", "Konsumsi", "Eksplorasi"], a: 2 },
-  { q: "14. Tujuan akhir dari seluruh rangkaian kegiatan ekonomi adalah ...", o: ["Distribusi", "Produksi", "Konsumsi", "Tabungan"], a: 2 },
-  { q: "15. Benda yang dapat dilihat dan disentuh seperti beras, pakaian, dan buku disebut ...", o: ["Jasa", "Barang", "Uang", "Modal"], a: 1 },
-  { q: "16. Layanan yang diberikan seseorang untuk membantu orang lain seperti dokter merawat pasien dinamakan ...", o: ["Barang", "Jasa", "Produk fisik", "Aset"], a: 1 },
-  { q: "17. Tempat bertemunya penjual dan pembeli secara langsung di mana pembeli dapat menawar harga dinamakan ...", o: ["Pasar modern", "Supermarket", "Pasar tradisional", "Toko daring"], a: 2 },
-  { q: "18. Ciri utama dari pasar modern adalah ...", o: ["Sistem swalayan dan harga sudah tercantum", "Adanya tawar-menawar harga dengan pedagang", "Hanya menjual barang bekas", "Terletak di pinggir jalan tanpa bangunan"], a: 0 },
-  { q: "19. Tempat berjualan barang dalam jumlah terbatas yang terletak di sekitar lingkungan tempat tinggal dinamakan ...", o: ["Pasar induk", "Warung atau toko kecil", "Supermarket", "Pusat perbelanjaan"], a: 1 },
-  { q: "20. Menanam sayuran di halaman rumah seperti cabai atau kangkung merupakan contoh memenuhi kebutuhan dari ...", o: ["Pasar modern", "Hasil sendiri", "Distributor luar negeri", "Bantuan pemerintah"], a: 1 },
-  { q: "21. Sopir truk yang mengangkut hasil pertanian dari desa ke pasar kota termasuk pelaku ekonomi yaitu ...", o: ["Produsen", "Distributor", "Konsumen", "Pengrajin"], a: 1 },
-  { q: "22. Siswa yang membeli makanan di kantin sekolah saat istirahat sedang berperan sebagai ...", o: ["Produsen", "Distributor", "Konsumen", "Pedagang grosir"], a: 2 },
-  { q: "23. Perbedaan kondisi dan potensi alam di setiap daerah menyebabkan kegiatan ekonomi masyarakat menjadi ...", o: ["Sama persis", "Berbeda-beda", "Terhenti", "Sederhana"], a: 1 },
-  { q: "24. Udara sejuk dan tanah subur di daerah pegunungan sangat cocok digunakan untuk kegiatan ...", o: ["Pembuatan kapal laut", "Pertanian, perkebunan, dan wisata alam", "Perikanan tangkap laut dalam", "Industri alat elektronik"], a: 1 },
-  { q: "25. Contoh tanaman yang banyak ditanam oleh masyarakat di daerah pegunungan adalah ...", o: ["Kelapa sawit dan bakau", "Kol, wortel, teh, dan kopi", "Padi rawa dan rumput laut", "Karet dan sagu"], a: 1 },
-  { q: "26. Dua daerah pegunungan di Indonesia yang terkenal dengan hasil pertaniannya adalah ...", o: ["Pekalongan dan Makassar", "Bandung dan Brastagi", "Jakarta dan Surabaya", "Ambon dan Kebumen"], a: 1 },
-  { q: "27. Kegiatan ekonomi utama bagi masyarakat yang tinggal di daerah pantai adalah ...", o: ["Bercocok tanam padi", "Menangkap ikan (perikanan)", "Membuat alat elektronik", "Menambang batu bara"], a: 1 },
-  { q: "28. Usaha olahan hasil laut yang sering dilakukan masyarakat pantai contohnya adalah pembuatan ...", o: ["Mebel kayu", "Ikan asin dan kerupuk", "Kertas dan pensil", "Kain batik sutra"], a: 1 },
-  { q: "29. Contoh pantai di Kabupaten Kebumen yang dimanfaatkan sebagai daerah wisata bahari adalah ...", o: ["Pantai Kuta dan Sanur", "Pantai Menganti, Mliwis, dan Pandan Kuning", "Pantai Parangtritis dan Baron", "Pantai Ancol dan Carita"], a: 1 },
-  { q: "30. Pusat kegiatan perdagangan, industri, dan jasa umumnya berada di daerah ...", o: ["Pegunungan", "Pesisir pantai", "Perkotaan", "Pedesaan terpencil"], a: 2 },
-  { q: "31. Pekerjaan masyarakat kota di sektor industri contohnya adalah ...", o: ["Menangkap udang di laut", "Membuat makanan/pakaian di pabrik", "Memetik daun teh di kebun", "Menanam kentang di ladang"], a: 1 },
-  { q: "32. Tempat bertemunya penjual dan pembeli untuk melakukan transaksi jual beli disebut ...", o: ["Gudang", "Pasar", "Pelabuhan", "Jembatan"], a: 1 },
-  { q: "33. Sarana transportasi sangat penting dalam kegiatan ekonomi untuk mempermudah ...", o: ["Proses pembuatan barang di pabrik", "Pengiriman barang dari satu daerah ke daerah lain", "Pengolahan bahan mentah", "Penetapan harga barang di kasir"], a: 1 },
-  { q: "34. Segala bentuk sarana dan prasarana fisik yang dibangun untuk mendukung kegiatan masyarakat dinamakan ...", o: ["Infrastruktur", "Distribusi", "Teknologi digital", "Sumber daya manusia"], a: 0 },
-  { q: "35. Contoh infrastruktur yang dapat memudahkan mobilitas orang dan pengiriman barang adalah ...", o: ["Mesin kasir dan printer", "Jalan dan jembatan", "Aplikasi belanja online", "Perangkat komputer"], a: 1 },
-  { q: "36. Peran teknologi dalam proses produksi barang adalah ...", o: ["Membuat proses produksi lebih cepat dan banyak", "Menghambat proses pengiriman barang", "Mengurangi minat konsumen untuk membeli", "Menghilangkan kebutuhan akan bahan baku"], a: 0 },
-  { q: "37. Kemampuan, keterampilan, dan kualitas manusia dalam bekerja dinamakan ...", o: ["Sumber Daya Alam (SDA)", "Sumber Daya Manusia (SDM)", "Infrastruktur", "Teknologi Informasi"], a: 1 },
-  { q: "38. Salah satu alasan utama pentingnya kegiatan ekonomi bagi masyarakat adalah untuk ...", o: ["Memenuhi kebutuhan hidup sehari-hari", "Merusak keseimbangan lingkungan", "Menghabiskan waktu luang", "Mengurangi jumlah fasilitas umum"], a: 0 },
-  { q: "39. Pajak yang dibayarkan masyarakat kepada pemerintah dari kegiatan ekonomi bermanfaat untuk ...", o: ["Membeli barang-barang mewah pejabat", "Membangun fasilitas umum seperti jalan dan sekolah", "Membiayai impor barang berlebihan", "Disimpan tanpa dimanfaatkan"], a: 1 },
-  { q: "40. Salah satu contoh tindakan pelajar dalam mendukung kegiatan ekonomi daerah adalah ...", o: ["Selalu membeli barang impor", "Membeli dan menggunakan produk lokal", "Membuang sampah di sungai", "Malas belajar di sekolah"], a: 1 },
-  { q: "41. Segala sesuatu yang berasal dari alam dan dapat dimanfaatkan untuk memenuhi kebutuhan manusia disebut ...", o: ["Sumber Daya Manusia", "Sumber Daya Alam", "Infrastruktur Daerah", "Hasil Industri"], a: 1 },
-  { q: "42. Sumber daya alam kayu yang dihasilkan dari hutan dimanfaatkan untuk membuat ...", o: ["Pakaian dan kain", "Meja, kursi, dan kertas", "Sepatu dan sandal", "Makanan ringan"], a: 1 },
-  { q: "43. Hasil perairan seperti ikan, udang, dan cumi-cumi sangat penting bagi tubuh manusia karena mengandung ...", o: ["Karbohidrat tinggi", "Protein yang baik untuk kesehatan", "Serat kasar", "Pengawet alami"], a: 1 },
-  { q: "44. Sumber daya alam tanah yang subur sangat penting bagi petani untuk ...", o: ["Membangun kapal laut", "Menanam padi, sayur, dan buah-buahan", "Membuat bahan bakar minyak", "Menghasilkan energi listrik"], a: 1 },
-  { q: "45. Batu bara dan minyak bumi merupakan contoh sumber daya alam yang digunakan sebagai ...", o: ["Bahan makanan pokok", "Bahan bakar mesin dan pembangkit listrik", "Pupuk tanaman hias", "Bahan baku pembuatan kertas"], a: 1 },
-  { q: "46. Sumber daya alam yang tidak dapat diperbarui dan jumlahnya terbatas adalah ...", o: ["Air dan udara", "Minyak bumi dan batu bara", "Tumbuhan dan hewan", "Sinar matahari dan angin"], a: 1 },
-  { q: "47. Dampak buruk yang terjadi apabila sumber daya alam digunakan secara berlebihan tanpa dijaga adalah ...", o: ["Produksi barang makin berlimpah", "Lingkungan menjadi rusak dan ekonomi terganggu", "Harga barang menjadi sangat murah", "Kesehatan manusia makin meningkat"], a: 1 },
-  { q: "48. Contoh penerapan sikap hemat energi sebagai pelaku ekonomi yang bijak adalah ...", o: ["Menyalakan lampu sepanjang hari", "Menghemat penggunaan air dan listrik", "Membiarkan keran air terus mengalir", "Menggunakan kendaraan bermotor untuk jarak sangat dekat"], a: 1 },
-  { q: "49. Mengurangi sampah makanan atau tidak boros makanan merupakan tindakan bijak dalam kegiatan ...", o: ["Produksi", "Distribusi", "Konsumsi", "Eksplorasi"], a: 2 },
+    // Database Master (50 Soal)
+    const masterQuizDatabase = [
+      { q: "1. Hal-hal yang harus dipenuhi agar manusia bisa hidup dengan layak dan merasa nyaman dinamakan ...", o: ["Keinginan", "Kebutuhan", "Hiburan", "Tabungan"], a: 1 },
+      { q: "2. Kebutuhan pokok yang wajib dipenuhi terlebih dahulu agar manusia dapat bertahan hidup disebut kebutuhan ...", o: ["Sekunder", "Tersier", "Primer", "Tambahan"], a: 2 },
+      { q: "3. Berikut ini yang termasuk dalam kelompok kebutuhan primer manusia adalah ...", o: ["Mobil, perhiasan, dan televisi", "Makanan, pakaian, dan tempat tinggal", "Alat bantu belajar dan telepon seluler", "Sepeda motor dan komputer"], a: 1 },
+      { q: "4. Kebutuhan yang dipenuhi setelah kebutuhan primer terpenuhi untuk membuat hidup lebih nyaman dinamakan kebutuhan ...", o: ["Primer", "Sekunder", "Tersier", "Mewah"], a: 1 },
+      { q: "5. Kebutuhan tersier merupakan kebutuhan tambahan yang biasanya bersifat ...", o: ["Pokok", "Mendesak", "Mewah", "Darurat"], a: 2 },
+      { q: "6. Salah satu tujuan utama dari pemenuhan kebutuhan tersier bagi seseorang adalah untuk ...", o: ["Mempertahankan hidup", "Menjaga kesehatan dasar", "Memberikan kesenangan atau status sosial", "Memenuhi kebutuhan gizi harian"], a: 2 },
+      { q: "7. Kegiatan ekonomi adalah segala usaha yang dilakukan manusia untuk ...", o: ["Menghasilkan, menyalurkan, dan menggunakan barang/jasa", "Mencari hiburan semata di waktu senggang", "Menimbun kekayaan tanpa batas", "Menghabiskan sumber daya alam"], a: 0 },
+      { q: "8. Kegiatan menghasilkan barang atau jasa yang berguna bagi kehidupan manusia disebut ...", o: ["Distribusi", "Konsumsi", "Produksi", "Investasi"], a: 2 },
+      { q: "9. Orang atau lembaga yang melakukan kegiatan produksi dinamakan ...", o: ["Distributor", "Konsumen", "Produsen", "Kurir"], a: 2 },
+      { q: "10. Contoh pekerjaan di bidang jasa yang termasuk dalam kegiatan produksi adalah ...", o: ["Petani menanam padi", "Guru mengajar siswa", "Nelayan menangkap ikan", "Pengrajin membuat meja"], a: 1 },
+      { q: "11. Kegiatan menyalurkan barang atau jasa dari produsen kepada konsumen dinamakan ...", o: ["Produksi", "Distribusi", "Konsumsi", "Promosi"], a: 1 },
+      { q: "12. Pihak atau orang yang melakukan kegiatan distribusi disebut ...", o: ["Produsen", "Distributor", "Konsumen", "Investor"], a: 1 },
+      { q: "13. Kegiatan menggunakan atau menghabiskan barang dan jasa untuk memenuhi kebutuhan hidup disebut ...", o: ["Produksi", "Distribusi", "Konsumsi", "Eksplorasi"], a: 2 },
+      { q: "14. Tujuan akhir dari seluruh rangkaian kegiatan ekonomi adalah ...", o: ["Distribusi", "Produksi", "Konsumsi", "Tabungan"], a: 2 },
+      { q: "15. Benda yang dapat dilihat dan disentuh seperti beras, pakaian, dan buku disebut ...", o: ["Jasa", "Barang", "Uang", "Modal"], a: 1 },
+      { q: "16. Layanan yang diberikan seseorang untuk membantu orang lain seperti dokter merawat pasien dinamakan ...", o: ["Barang", "Jasa", "Produk fisik", "Aset"], a: 1 },
+      { q: "17. Tempat bertemunya penjual dan pembeli secara langsung di mana pembeli dapat menawar harga dinamakan ...", o: ["Pasar modern", "Supermarket", "Pasar tradisional", "Toko daring"], a: 2 },
+      { q: "18. Ciri utama dari pasar modern adalah ...", o: ["Sistem swalayan dan harga sudah tercantum", "Adanya tawar-menawar harga dengan pedagang", "Hanya menjual barang bekas", "Terletak di pinggir jalan tanpa bangunan"], a: 0 },
+      { q: "19. Tempat berjualan barang dalam jumlah terbatas yang terletak di sekitar lingkungan tempat tinggal dinamakan ...", o: ["Pasar induk", "Warung atau toko kecil", "Supermarket", "Pusat perbelanjaan"], a: 1 },
+      { q: "20. Menanam sayuran di halaman rumah seperti cabai atau kangkung merupakan contoh memenuhi kebutuhan dari ...", o: ["Pasar modern", "Hasil sendiri", "Distributor luar negeri", "Bantuan pemerintah"], a: 1 },
+      { q: "21. Sopir truk yang mengangkut hasil pertanian dari desa ke pasar kota termasuk pelaku ekonomi yaitu ...", o: ["Produsen", "Distributor", "Konsumen", "Pengrajin"], a: 1 },
+      { q: "22. Siswa yang membeli makanan di kantin sekolah saat istirahat sedang berperan sebagai ...", o: ["Produsen", "Distributor", "Konsumen", "Pedagang grosir"], a: 2 },
+      { q: "23. Perbedaan kondisi dan potensi alam di setiap daerah menyebabkan kegiatan ekonomi masyarakat menjadi ...", o: ["Sama persis", "Berbeda-beda", "Terhenti", "Sederhana"], a: 1 },
+      { q: "24. Udara sejuk dan tanah subur di daerah pegunungan sangat cocok digunakan untuk kegiatan ...", o: ["Pembuatan kapal laut", "Pertanian, perkebunan, dan wisata alam", "Perikanan tangkap laut dalam", "Industri alat elektronik"], a: 1 },
+      { q: "25. Contoh tanaman yang banyak ditanam oleh masyarakat di daerah pegunungan adalah ...", o: ["Kelapa sawit dan bakau", "Kol, wortel, teh, dan kopi", "Padi rawa dan rumput laut", "Karet dan sagu"], a: 1 },
+      { q: "26. Dua daerah pegunungan di Indonesia yang terkenal dengan hasil pertaniannya adalah ...", o: ["Pekalongan dan Makassar", "Bandung dan Brastagi", "Jakarta dan Surabaya", "Ambon dan Kebumen"], a: 1 },
+      { q: "27. Kegiatan ekonomi utama bagi masyarakat yang tinggal di daerah pantai adalah ...", o: ["Bercocok tanam padi", "Menangkap ikan (perikanan)", "Membuat alat elektronik", "Menambang batu bara"], a: 1 },
+      { q: "28. Usaha olahan hasil laut yang sering dilakukan masyarakat pantai contohnya adalah pembuatan ...", o: ["Mebel kayu", "Ikan asin dan kerupuk", "Kertas dan pensil", "Kain batik sutra"], a: 1 },
+      { q: "29. Contoh pantai di Kabupaten Kebumen yang dimanfaatkan sebagai daerah wisata bahari adalah ...", o: ["Pantai Kuta dan Sanur", "Pantai Menganti, Mliwis, dan Pandan Kuning", "Pantai Parangtritis dan Baron", "Pantai Ancol dan Carita"], a: 1 },
+      { q: "30. Pusat kegiatan perdagangan, industri, dan jasa umumnya berada di daerah ...", o: ["Pegunungan", "Pesisir pantai", "Perkotaan", "Pedesaan terpencil"], a: 2 },
+      { q: "31. Pekerjaan masyarakat kota di sektor industri contohnya adalah ...", o: ["Menangkap udang di laut", "Membuat makanan/pakaian di pabrik", "Memetik daun teh di kebun", "Menanam kentang di ladang"], a: 1 },
+      { q: "32. Tempat bertemunya penjual dan pembeli untuk melakukan transaksi jual beli disebut ...", o: ["Gudang", "Pasar", "Pelabuhan", "Jembatan"], a: 1 },
+      { q: "33. Sarana transportasi sangat penting dalam kegiatan ekonomi untuk mempermudah ...", o: ["Proses pembuatan barang di pabrik", "Pengiriman barang dari satu daerah ke daerah lain", "Pengolahan bahan mentah", "Penetapan harga barang di kasir"], a: 1 },
+      { q: "34. Segala bentuk sarana dan prasarana fisik yang dibangun untuk mendukung kegiatan masyarakat dinamakan ...", o: ["Infrastruktur", "Distribusi", "Teknologi digital", "Sumber daya manusia"], a: 0 },
+      { q: "35. Contoh infrastruktur yang dapat memudahkan mobilitas orang dan pengiriman barang adalah ...", o: ["Mesin kasir dan printer", "Jalan dan jembatan", "Aplikasi belanja online", "Perangkat komputer"], a: 1 },
+      { q: "36. Peran teknologi dalam proses produksi barang adalah ...", o: ["Membuat proses produksi lebih cepat dan banyak", "Menghambat proses pengiriman barang", "Mengurangi minat konsumen untuk membeli", "Menghilangkan kebutuhan akan bahan baku"], a: 0 },
+      { q: "37. Kemampuan, keterampilan, dan kualitas manusia dalam bekerja dinamakan ...", o: ["Sumber Daya Alam (SDA)", "Sumber Daya Manusia (SDM)", "Infrastruktur", "Teknologi Informasi"], a: 1 },
+      { q: "38. Salah satu alasan utama pentingnya kegiatan ekonomi bagi masyarakat adalah untuk ...", o: ["Memenuhi kebutuhan hidup sehari-hari", "Merusak keseimbangan lingkungan", "Menghabiskan waktu luang", "Mengurangi jumlah fasilitas umum"], a: 0 },
+      { q: "39. Pajak yang dibayarkan masyarakat kepada pemerintah dari kegiatan ekonomi bermanfaat untuk ...", o: ["Membeli barang-barang mewah pejabat", "Membangun fasilitas umum seperti jalan dan sekolah", "Membiayai impor barang berlebihan", "Disimpan tanpa dimanfaatkan"], a: 1 },
+      { q: "40. Salah satu contoh tindakan pelajar dalam mendukung kegiatan ekonomi daerah adalah ...", o: ["Selalu membeli barang impor", "Membeli dan menggunakan produk lokal", "Membuang sampah di sungai", "Malas belajar di sekolah"], a: 1 },
+      { q: "41. Segala sesuatu yang berasal dari alam dan dapat dimanfaatkan untuk memenuhi kebutuhan manusia disebut ...", o: ["Sumber Daya Manusia", "Sumber Daya Alam", "Infrastruktur Daerah", "Hasil Industri"], a: 1 },
+      { q: "42. Sumber daya alam kayu yang dihasilkan dari hutan dimanfaatkan untuk membuat ...", o: ["Pakaian dan kain", "Meja, kursi, dan kertas", "Sepatu dan sandal", "Makanan ringan"], a: 1 },
+      { q: "43. Hasil perairan seperti ikan, udang, dan cumi-cumi sangat penting bagi tubuh manusia karena mengandung ...", o: ["Karbohidrat tinggi", "Protein yang baik untuk kesehatan", "Serat kasar", "Pengawet alami"], a: 1 },
+      { q: "44. Sumber daya alam tanah yang subur sangat penting bagi petani untuk ...", o: ["Membangun kapal laut", "Menanam padi, sayur, dan buah-buahan", "Membuat bahan bakar minyak", "Menghasilkan energi listrik"], a: 1 },
+      { q: "45. Batu bara dan minyak bumi merupakan contoh sumber daya alam yang digunakan sebagai ...", o: ["Bahan makanan pokok", "Bahan bakar mesin dan pembangkit listrik", "Pupuk tanaman hias", "Bahan baku pembuatan kertas"], a: 1 },
+      { q: "46. Sumber daya alam yang tidak dapat diperbarui dan jumlahnya terbatas adalah ...", o: ["Air dan udara", "Minyak bumi dan batu bara", "Tumbuhan dan hewan", "Sinar matahari dan angin"], a: 1 },
+      { q: "47. Dampak buruk yang terjadi apabila sumber daya alam digunakan secara berlebihan tanpa dijaga adalah ...", o: ["Produksi barang makin berlimpah", "Lingkungan menjadi rusak dan ekonomi terganggu", "Harga barang menjadi sangat murah", "Kesehatan manusia makin meningkat"], a: 1 },
+      { q: "48. Contoh penerapan sikap hemat energi sebagai pelaku ekonomi yang bijak adalah ...", o: ["Menyalakan lampu sepanjang hari", "Menghemat penggunaan air dan listrik", "Membiarkan keran air terus mengalir", "Menggunakan kendaraan bermotor untuk jarak sangat dekat"], a: 1 },
+      { q: "49. Mengurangi sampah makanan atau tidak boros makanan merupakan tindakan bijak dalam kegiatan ...", o: ["Produksi", "Distribusi", "Konsumsi", "Eksplorasi"], a: 2 },
+      { q: "50. Memanfaatkan kembali barang-barang bekas menjadi benda yang berguna dinamakan kegiatan ...", o: ["Daur ulang", "Pembakaran", "Reboisasi", "Eksploitasi"], a: 0 }
     ];
+
+    // Fungsi Pengacak Array (Fisher-Yates Shuffle)
+    function shuffleArray(array) {
+      let shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    // Membagi 20 Soal Berbeda untuk Masing-masing dari 6 Pemain
+    const playerQuestionBanks = {};
+    Object.keys(playerConfigs).forEach((pKey) => {
+      // Mengacak seluruh bank soal lalu mengambil 20 soal pertama
+      playerQuestionBanks[pKey] = shuffleArray(masterQuizDatabase).slice(0, 20);
+    });
 
     let currentRole = '';
     let players = {
@@ -427,10 +445,13 @@
       });
     }
 
-    // Logika Kuis Individu
+    // Logika Kuis Khusus Pemain
     function triggerQuiz() {
-      const randomIdx = Math.floor(Math.random() * quizDatabase.length);
-      const q = quizDatabase[randomIdx];
+      const myBank = playerQuestionBanks[currentRole];
+      if (!myBank || myBank.length === 0) return;
+
+      const randomIdx = Math.floor(Math.random() * myBank.length);
+      const q = myBank[randomIdx];
       
       document.getElementById('question-text').innerText = q.q;
       const opts = document.getElementById('options-container');
