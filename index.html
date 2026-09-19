@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Labirin 6 Pemain Solo (vs AI Bot)</title>
+  <title>Game Labirin 6 Pemain Multiplayer</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #fff; margin: 0; padding: 20px; text-align: center; }
@@ -11,12 +11,12 @@
     
     .scoreboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .score-card { background: #334155; padding: 10px; border-radius: 6px; font-size: 13px; text-align: left; border-left: 5px solid #ccc; }
-    .score-card.p1 { border-color: #ef4444; }
-    .score-card.p2 { border-color: #3b82f6; }
-    .score-card.p3 { border-color: #22c55e; }
-    .score-card.p4 { border-color: #eab308; }
-    .score-card.p5 { border-color: #a855f7; }
-    .score-card.p6 { border-color: #ec4899; }
+    .score-card.P1 { border-color: #ef4444; }
+    .score-card.P2 { border-color: #3b82f6; }
+    .score-card.P3 { border-color: #22c55e; }
+    .score-card.P4 { border-color: #eab308; }
+    .score-card.P5 { border-color: #a855f7; }
+    .score-card.P6 { border-color: #ec4899; }
     .score-card .p-name { font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; }
     .score-card .p-score { font-size: 16px; color: #4ade80; font-weight: bold; }
 
@@ -24,7 +24,7 @@
     .role-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
     .btn { background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; }
     .btn:hover:not(:disabled) { opacity: 0.9; }
-    .btn-start { background: #22c55e; font-size: 16px; padding: 12px 24px; }
+    .btn:disabled { background: #64748b; cursor: not-allowed; }
 
     #maze-canvas { background: #000; border: 4px solid #38bdf8; border-radius: 8px; margin-top: 10px; max-width: 100%; }
     
@@ -34,6 +34,12 @@
     .opt-btn:hover { background: #64748b; }
     
     .status-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; background: #475569; color: #fff; }
+    .status-badge.active { background: #22c55e; }
+
+    /* Touch Controls untuk HP */
+    .touch-controls { display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; justify-content: center; margin-top: 15px; }
+    .touch-btn { width: 60px; height: 60px; background: #334155; color: white; font-size: 20px; border: none; border-radius: 8px; font-weight: bold; }
+    .touch-btn:active { background: #3b82f6; }
   </style>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -42,46 +48,65 @@
 <body>
 
   <div class="container">
-    <h1>Game Labirin Solo (P1 vs AI Bot P2-P6)</h1>
+    <h1>Game Labirin Multiplayer (6 Perangkat)</h1>
     
     <div style="margin-bottom: 10px;">
-      Status: <span id="user-role" style="color: #facc15; font-weight: bold;">Tekan "Mulai Permainan"</span>
+      Peran Anda: <span id="user-role" style="color: #facc15; font-weight: bold;">Pilih Peran Di Bawah</span>
     </div>
 
     <!-- Papan Skor -->
     <div class="scoreboard">
-      <div class="score-card p1">
-        <div class="p-name"><span>P1 (Anda/Merah)</span> <span id="st-Player1" class="status-badge">Player</span></div>
-        <div>Skor: <span id="sc-Player1" class="p-score">0</span></div>
+      <div class="score-card P1">
+        <div class="p-name"><span>P1 (Merah)</span> <span id="st-P1" class="status-badge">Offline</span></div>
+        <div>Skor: <span id="sc-P1" class="p-score">0</span></div>
       </div>
-      <div class="score-card p2">
-        <div class="p-name"><span>P2 (Bot Biru)</span> <span id="st-Player2" class="status-badge">BOT</span></div>
-        <div>Skor: <span id="sc-Player2" class="p-score">0</span></div>
+      <div class="score-card P2">
+        <div class="p-name"><span>P2 (Biru)</span> <span id="st-P2" class="status-badge">Offline</span></div>
+        <div>Skor: <span id="sc-P2" class="p-score">0</span></div>
       </div>
-      <div class="score-card p3">
-        <div class="p-name"><span>P3 (Bot Hijau)</span> <span id="st-Player3" class="status-badge">BOT</span></div>
-        <div>Skor: <span id="sc-Player3" class="p-score">0</span></div>
+      <div class="score-card P3">
+        <div class="p-name"><span>P3 (Hijau)</span> <span id="st-P3" class="status-badge">Offline</span></div>
+        <div>Skor: <span id="sc-P3" class="p-score">0</span></div>
       </div>
-      <div class="score-card p4">
-        <div class="p-name"><span>P4 (Bot Kuning)</span> <span id="st-Player4" class="status-badge">BOT</span></div>
-        <div>Skor: <span id="sc-Player4" class="p-score">0</span></div>
+      <div class="score-card P4">
+        <div class="p-name"><span>P4 (Kuning)</span> <span id="st-P4" class="status-badge">Offline</span></div>
+        <div>Skor: <span id="sc-P4" class="p-score">0</span></div>
       </div>
-      <div class="score-card p5">
-        <div class="p-name"><span>P5 (Bot Ungu)</span> <span id="st-Player5" class="status-badge">BOT</span></div>
-        <div>Skor: <span id="sc-Player5" class="p-score">0</span></div>
+      <div class="score-card P5">
+        <div class="p-name"><span>P5 (Ungu)</span> <span id="st-P5" class="status-badge">Offline</span></div>
+        <div>Skor: <span id="sc-P5" class="p-score">0</span></div>
       </div>
-      <div class="score-card p6">
-        <div class="p-name"><span>P6 (Bot Pink)</span> <span id="st-Player6" class="status-badge">BOT</span></div>
-        <div>Skor: <span id="sc-Player6" class="p-score">0</span></div>
+      <div class="score-card P6">
+        <div class="p-name"><span>P6 (Pink)</span> <span id="st-P6" class="status-badge">Offline</span></div>
+        <div>Skor: <span id="sc-P6" class="p-score">0</span></div>
       </div>
     </div>
 
-    <!-- Kontrol Game -->
+    <!-- Pilih Peran -->
     <div id="role-box" class="role-selection">
-      <button class="btn btn-start" onclick="startGame()">Mulai Permainan Solo</button>
+      <h3>Pilih Pemain (1 Perangkat = 1 Pemain):</h3>
+      <div class="role-buttons">
+        <button class="btn" onclick="selectRole('P1')">Pemain 1 (Merah)</button>
+        <button class="btn" onclick="selectRole('P2')">Pemain 2 (Biru)</button>
+        <button class="btn" onclick="selectRole('P3')">Pemain 3 (Hijau)</button>
+        <button class="btn" onclick="selectRole('P4')">Pemain 4 (Kuning)</button>
+        <button class="btn" onclick="selectRole('P5')">Pemain 5 (Ungu)</button>
+        <button class="btn" onclick="selectRole('P6')">Pemain 6 (Pink)</button>
+      </div>
+      <button class="btn" style="background:#ef4444; margin-top:15px;" onclick="resetGameServer()">Reset Ulang Semua Pemain</button>
     </div>
 
     <canvas id="maze-canvas" width="500" height="500"></canvas>
+
+    <!-- Tombol Kontrol HP -->
+    <div class="touch-controls">
+      <div></div>
+      <button class="touch-btn" onclick="handleMove('up')">▲</button>
+      <div></div>
+      <button class="touch-btn" onclick="handleMove('left')">◄</button>
+      <button class="touch-btn" onclick="handleMove('down')">▼</button>
+      <button class="touch-btn" onclick="handleMove('right')">►</button>
+    </div>
   </div>
 
   <!-- Modal Kuis -->
@@ -108,10 +133,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    let myRole = null;
     let stepCounter = 0;
     let isQuizActive = false;
-    let gameLoopInterval = null;
-    let gameStarted = false;
 
     const mazeGrid = [
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -140,120 +164,109 @@
     const FINISH_POS = { x: 18, y: 18 };
 
     const playerConfigs = {
-      Player1: { name: 'Pemain 1', color: '#ef4444', isBot: false, offsetX: 6,  offsetY: 6 },
-      Player2: { name: 'Bot Biru', color: '#3b82f6', isBot: true,  offsetX: 18, offsetY: 6 },
-      Player3: { name: 'Bot Hijau', color: '#22c55e', isBot: true,  offsetX: 6,  offsetY: 12 },
-      Player4: { name: 'Bot Kuning', color: '#eab308', isBot: true,  offsetX: 18, offsetY: 12 },
-      Player5: { name: 'Bot Ungu', color: '#a855f7', isBot: true,  offsetX: 6,  offsetY: 18 },
-      Player6: { name: 'Bot Pink', color: '#ec4899', isBot: true,  offsetX: 18, offsetY: 18 }
+      P1: { name: 'Pemain 1', color: '#ef4444', offsetX: 6,  offsetY: 6 },
+      P2: { name: 'Pemain 2', color: '#3b82f6', offsetX: 18, offsetY: 6 },
+      P3: { name: 'Pemain 3', color: '#22c55e', offsetX: 6,  offsetY: 12 },
+      P4: { name: 'Pemain 4', color: '#eab308', offsetX: 18, offsetY: 12 },
+      P5: { name: 'Pemain 5', color: '#a855f7', offsetX: 6,  offsetY: 18 },
+      P6: { name: 'Pemain 6', color: '#ec4899', offsetX: 18, offsetY: 18 }
     };
 
-    let players = {
-      Player1: { ...START_POS },
-      Player2: { ...START_POS },
-      Player3: { ...START_POS },
-      Player4: { ...START_POS },
-      Player5: { ...START_POS },
-      Player6: { ...START_POS }
-    };
-
-    let playerScores = { Player1: 0, Player2: 0, Player3: 0, Player4: 0, Player5: 0, Player6: 0 };
-    let playerFinished = { Player1: false, Player2: false, Player3: false, Player4: false, Player5: false, Player6: false };
+    let playersData = {};
 
     const masterQuizDatabase = [
       { q: "1. Hal-hal yang harus dipenuhi agar manusia bisa hidup dengan layak dinamakan ...", o: ["Keinginan", "Kebutuhan", "Hiburan", "Tabungan"], a: 1 },
       { q: "2. Kebutuhan pokok yang wajib dipenuhi terlebih dahulu disebut kebutuhan ...", o: ["Sekunder", "Tersier", "Primer", "Tambahan"], a: 2 }
     ];
 
-    function startGame() {
-      gameStarted = true;
-      document.getElementById('user-role').innerText = 'Game Berjalan! Gunakan Panah / WASD';
+    function selectRole(roleKey) {
+      myRole = roleKey;
+      document.getElementById('user-role').innerText = `${playerConfigs[roleKey].name} (${roleKey})`;
       document.getElementById('role-box').style.display = 'none';
 
-      // Mulai Pergerakan Otomatis untuk Bot (P2 sampai P6)
-      if (gameLoopInterval) clearInterval(gameLoopInterval);
-      gameLoopInterval = setInterval(moveBots, 400); // Bot bergerak tiap 0.4 detik
-      
-      renderCanvas();
+      // Daftarkan pemain ke server Firebase
+      db.ref(`game/players/${roleKey}`).set({
+        x: START_POS.x,
+        y: START_POS.y,
+        score: 0,
+        finished: false,
+        online: true
+      });
+
+      // Hapus status online saat tab ditutup
+      db.ref(`game/players/${roleKey}/online`).onDisconnect().set(false);
     }
 
-    // Fungsi Gerakan Otomatis Bot
-    function moveBots() {
-      if (!gameStarted || isQuizActive) return;
-
+    // Dengarkan perubahan data dari server Firebase secara Real-time
+    db.ref('game/players').on('value', (snapshot) => {
+      playersData = snapshot.val() || {};
+      
+      // Update Papan Skor & Status
       Object.keys(playerConfigs).forEach((pKey) => {
-        if (playerConfigs[pKey].isBot && !playerFinished[pKey]) {
-          let pos = players[pKey];
-          let possibleMoves = [];
+        const pData = playersData[pKey];
+        const badgeElem = document.getElementById(`st-${pKey}`);
+        const scoreElem = document.getElementById(`sc-${pKey}`);
 
-          const directions = [
-            { x: pos.x, y: pos.y - 1 },
-            { x: pos.x, y: pos.y + 1 },
-            { x: pos.x - 1, y: pos.y },
-            { x: pos.x + 1, y: pos.y }
-          ];
-
-          directions.forEach(d => {
-            if (d.y >= 0 && d.y < 20 && d.x >= 0 && d.x < 20 && mazeGrid[d.y][d.x] === 0) {
-              possibleMoves.push(d);
-            }
-          });
-
-          if (possibleMoves.length > 0) {
-            // Pilih langkah acak
-            const nextPos = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-            players[pKey] = nextPos;
-
-            // Cek jika Bot Sampai ke Finish
-            if (nextPos.x === FINISH_POS.x && nextPos.y === FINISH_POS.y) {
-              playerFinished[pKey] = true;
-              playerScores[pKey] += 500;
-              document.getElementById(`sc-${pKey}`).innerText = playerScores[pKey];
-              alert(`${playerConfigs[pKey].name} telah mencapai FINISH!`);
-            }
-          }
+        if (pData && pData.online) {
+          badgeElem.innerText = "Online";
+          badgeElem.classList.add('active');
+          scoreElem.innerText = pData.score || 0;
+        } else {
+          badgeElem.innerText = "Offline";
+          badgeElem.classList.remove('active');
         }
       });
 
       renderCanvas();
-    }
+    });
 
-    // Input Keyboard untuk Pemain 1 (Merah)
-    window.addEventListener('keydown', (e) => {
-      if (!gameStarted || playerFinished['Player1'] || isQuizActive) return;
+    function handleMove(direction) {
+      if (!myRole || isQuizActive) return;
 
-      let pos = players['Player1'];
-      let nextX = pos.x;
-      let nextY = pos.y;
-      let isMoving = false;
+      const myData = playersData[myRole];
+      if (!myData || myData.finished) return;
 
-      const key = e.key.toLowerCase();
-      if (key === 'arrowup' || key === 'w') { nextY--; isMoving = true; }
-      if (key === 'arrowdown' || key === 's') { nextY++; isMoving = true; }
-      if (key === 'arrowleft' || key === 'a') { nextX--; isMoving = true; }
-      if (key === 'arrowright' || key === 'd') { nextX++; isMoving = true; }
+      let nextX = myData.x;
+      let nextY = myData.y;
 
-      if (isMoving) {
-        e.preventDefault();
-        if (nextY >= 0 && nextY < 20 && nextX >= 0 && nextX < 20) {
-          if (mazeGrid[nextY][nextX] === 0) {
-            pos.x = nextX;
-            pos.y = nextY;
-            stepCounter++;
+      if (direction === 'up') nextY--;
+      if (direction === 'down') nextY++;
+      if (direction === 'left') nextX--;
+      if (direction === 'right') nextX++;
 
-            if (pos.x === FINISH_POS.x && pos.y === FINISH_POS.y) {
-              playerFinished['Player1'] = true;
-              playerScores['Player1'] += 500;
-              document.getElementById('sc-Player1').innerText = playerScores['Player1'];
-              alert("SELAMAT! Anda (Pemain 1) berhasil mencapai FINISH!");
-            } else if (stepCounter % 5 === 0) {
-              triggerQuiz();
-            }
+      if (nextY >= 0 && nextY < 20 && nextX >= 0 && nextX < 20) {
+        if (mazeGrid[nextY][nextX] === 0) {
+          stepCounter++;
 
-            renderCanvas();
+          let isFinished = false;
+          let newScore = myData.score || 0;
+
+          if (nextX === FINISH_POS.x && nextY === FINISH_POS.y) {
+            isFinished = true;
+            newScore += 500;
+            alert(`SELAMAT! ${playerConfigs[myRole].name} Berhasil Mencapai FINISH!`);
+          } else if (stepCounter % 5 === 0) {
+            triggerQuiz();
           }
+
+          // Kirim posisi baru ke Firebase
+          db.ref(`game/players/${myRole}`).update({
+            x: nextX,
+            y: nextY,
+            score: newScore,
+            finished: isFinished
+          });
         }
       }
+    }
+
+    // Input Keyboard
+    window.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      if (key === 'arrowup' || key === 'w') handleMove('up');
+      if (key === 'arrowdown' || key === 's') handleMove('down');
+      if (key === 'arrowleft' || key === 'a') handleMove('left');
+      if (key === 'arrowright' || key === 'd') handleMove('right');
     });
 
     function renderCanvas() {
@@ -263,6 +276,7 @@
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Gambar Labirin
       for (let r = 0; r < 20; r++) {
         for (let c = 0; c < 20; c++) {
           if (mazeGrid[r][c] === 1) {
@@ -283,17 +297,17 @@
       ctx.fillStyle = '#eab308';
       ctx.fillRect(FINISH_POS.x * cellSize, FINISH_POS.y * cellSize, cellSize, cellSize);
 
-      // Gambar Semua Pemain
+      // Gambar Seluruh Pemain dari Firebase
       Object.keys(playerConfigs).forEach((pKey) => {
         const conf = playerConfigs[pKey];
-        const pPos = players[pKey];
+        const pData = playersData[pKey];
 
-        if (pPos) {
+        if (pData && pData.online) {
           ctx.fillStyle = conf.color;
           ctx.beginPath();
           ctx.arc(
-            pPos.x * cellSize + conf.offsetX,
-            pPos.y * cellSize + conf.offsetY,
+            pData.x * cellSize + conf.offsetX,
+            pData.y * cellSize + conf.offsetY,
             5, 0, Math.PI * 2
           );
           ctx.fill();
@@ -321,17 +335,26 @@
     }
 
     function submitAnswer(selected, correct) {
+      let currentScore = playersData[myRole]?.score || 0;
+
       if (selected === correct) {
-        playerScores['Player1'] += 100;
+        currentScore += 100;
         alert("Jawaban Benar! (+100 Poin)");
       } else {
-        playerScores['Player1'] -= 25;
+        currentScore -= 25;
         alert("Jawaban Salah! (-25 Poin)");
       }
       
-      document.getElementById('sc-Player1').innerText = playerScores['Player1'];
+      db.ref(`game/players/${myRole}`).update({ score: currentScore });
       document.getElementById('quiz-modal').style.display = 'none';
       isQuizActive = false;
+    }
+
+    function resetGameServer() {
+      if (confirm("Reset seluruh data game di server?")) {
+        db.ref('game/players').remove();
+        location.reload();
+      }
     }
 
     renderCanvas();
